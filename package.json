@@ -4,11 +4,11 @@
   "description": "\"Clean Code Web Application\"",
   "main": "index.js",
   "scripts": {
-    "start": "rm public/* && webpack -p --progress --config webpack.config.js && flask run",
-    "build": "rm public/* && webpack -p --progress --config webpack.config.js",
-    "dev-build": "rm public/* && webpack --progress -d --config webpack.config.js",
+    "start": "bash run.sh start",
+    "build": "bash run.sh build",
+    "dev-build": "bash run.sh dev-build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "rm -v public/* && webpack --progress -d --config webpack.config.js --watch"
+    "watch": "bash run.sh watch"
   },
   "repository": {
     "type": "git",
