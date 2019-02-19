@@ -2,28 +2,12 @@ const webpack = require('webpack');
 
 const config = {
   entry: {
-    'bundle': [
-      __dirname + '/app/application.js',
-    ],
-  },
-  optimization: {
-    splitChunks: {
-      chunks: "all",
-      cacheGroups: {
-        default: false,
-        vendors: false,
-        vendor: {
-          name: "bundle",
-          chunks: "all",
-          test: /node_modules/,
-          priority: 20
-        }
-      }
-    }
+    application: __dirname + '/app/application.js',
+    bootstrap_css: __dirname + '/app/vendor/css/bootstrap.min.css',
+    bootstrap_js: __dirname + '/app/vendor/js/bootstrap.min.js',
   },
   output: {
     filename: "[name].js",
-    chunkFilename: "[name]-[chunkhash].js",
     path: __dirname + '/public',
   },
   module: {
