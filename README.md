@@ -1,10 +1,14 @@
-# CS 5153 UI Group Project
+# Clean Code
 
 **Usage: Dev port on 5000**
 
+**Install ![yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable) package manager or nodejs package manager (npm)**
+
 ```bash
 #inside app folder
+pip install virtualenv
 source venv/bin/activate
 flask db upgrade
-flask run
+yarn
+yarn start/npm start
 ```

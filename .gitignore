@@ -1,4 +1,11 @@
-
 # Ignore sqlite files
 *.sqlite3
+
+# Ignore all pycache folders
 **/__pycache__
+
+# Ignore static node_modules folder
+/node_modules
+/public
+
+yarn-error.log

@@ -1,0 +1,37 @@
+{
+  "name": "clean_code",
+  "version": "1.0.0",
+  "description": "\"Clean Code Web Application\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "rm public/* && webpack -p --progress --config webpack.config.js && flask run",
+    "build": "rm public/* && webpack -p --progress --config webpack.config.js",
+    "dev-build": "rm public/* && webpack --progress -d --config webpack.config.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "rm -v public/* && webpack --progress -d --config webpack.config.js --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "\"https://github.com/Jinbir/cs5153_ui_group_project\""
+  },
+  "keywords": [
+    "templates",
+    "python",
+    "yarn",
+    "webpack"
+  ],
+  "author": "EasyIP2023",
+  "license": "ISC",
+  "dependencies": {
+    "css-loader": "^2.1.0",
+    "file-loader": "^3.0.1",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7",
+    "style-loader": "^0.23.1",
+    "turbolinks": "^5.2.0",
+    "webpack": "^4.29.5"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.2.3"
+  }
+}
