@@ -2,7 +2,7 @@
 
 **Usage: Dev port on 5000**
 
-**Install ![yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable) package manager or nodejs package manager (npm)**
+**Install [yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable) package manager or nodejs package manager (npm)**
 
 ```bash
 #inside app folder
