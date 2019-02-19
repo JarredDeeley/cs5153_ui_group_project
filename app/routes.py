@@ -1,6 +1,6 @@
 from flask import render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, login_required, logout_user
-from app import app, db
+from app import app, db, config
 from app.models import User
 from app.forms import LoginForm, RegistrationForm
 
@@ -17,12 +17,13 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash('Invalid username or password')
+            flash(u'Invalid username or password','error')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
+        flash(u'Successfully Signed in!!!', 'success')
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
@@ -30,6 +31,7 @@ def login():
 @login_required
 def logout():
     logout_user()
+    flash(u'Successfully Signed out', 'success')
     return redirect(url_for('index'))
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -42,7 +44,7 @@ def register():
         user.set_password(form.password.data)
         db.session.add(user)
         db.session.commit()
-        flash('Congratulations, you are now a registered user!')
+        flash(u'Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('login'))
 
     return render_template('register.html', title='Register', form=form)

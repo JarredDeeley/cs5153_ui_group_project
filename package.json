@@ -1,0 +1,37 @@
+{
+  "name": "clean_code",
+  "version": "1.0.0",
+  "description": "\"Clean Code Web Application\"",
+  "main": "index.js",
+  "scripts": {
+    "start": "bash run.sh start",
+    "build": "bash run.sh build",
+    "dev-build": "bash run.sh dev-build",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "bash run.sh watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "\"https://github.com/Jinbir/cs5153_ui_group_project\""
+  },
+  "keywords": [
+    "templates",
+    "python",
+    "yarn",
+    "webpack"
+  ],
+  "author": "EasyIP2023",
+  "license": "ISC",
+  "dependencies": {
+    "css-loader": "^2.1.0",
+    "file-loader": "^3.0.1",
+    "jquery": "^3.3.1",
+    "popper.js": "^1.14.7",
+    "style-loader": "^0.23.1",
+    "turbolinks": "^5.2.0",
+    "webpack": "^4.29.5"
+  },
+  "devDependencies": {
+    "webpack-cli": "^3.2.3"
+  }
+}
