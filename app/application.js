@@ -1,5 +1,5 @@
-var Turbolinks = require("turbolinks")
-Turbolinks.start()
+var Turbolinks = require("turbolinks");
+Turbolinks.start();
 
 // https://github.com/turbolinks/turbolinks/issues/272
 for(let i = 0; i < document.forms.length; i++) {
