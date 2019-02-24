@@ -1,6 +1,7 @@
 const webpack = require('webpack');
 
 const config = {
+  // This is 100% not the best way to do this!!!
   entry: {
     application: __dirname + '/app/application.js',
     bootstrap_css: __dirname + '/app/vendor/css/bootstrap.min.css',
