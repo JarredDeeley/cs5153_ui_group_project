@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db, config
-from app.models import User
+from app.models import User, Role
 from app.forms import LoginForm, RegistrationForm
 
 @app.route('/')
@@ -48,3 +48,8 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/roles')
+def roles():
+    roles = Role.query.all()
+    return render_template('roles/index.html', title='Roles')

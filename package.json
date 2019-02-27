@@ -4,6 +4,8 @@
   "description": "\"Clean Code Web Application\"",
   "main": "index.js",
   "scripts": {
+    "dbrebuild": "orator migrate:refresh --seed -c migrations/orator.yml",
+    "seed": "orator db:seed -c migrations/orator.yml",
     "start": "bash run.sh start",
     "build": "bash run.sh build",
     "dev-build": "bash run.sh dev-build",
