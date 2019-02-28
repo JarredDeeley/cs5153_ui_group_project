@@ -27,9 +27,8 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-@login.user_loader
-def load_user(id):
-    return User.query.get(int(id))
+    def is_admin(self, roles):
+        return False if not roles else True
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -41,3 +40,7 @@ class Role(db.Model):
 
     def __repr__(self):
         return '<Role {}>'.format(self.name)
+
+@login.user_loader
+def load_user(id):
+    return User.query.get(int(id))

@@ -15,28 +15,32 @@
   </head>
   <body>
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+			{% if current_user.is_authenticated and current_user.is_admin(current_user.roles) %}
+			<a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">Admin</a>
+			{% else %}
 		 	<a class="navbar-brand" href="{{ url_for('index') }}">Clean Code</a>
+			{% endif %}
 		  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		    <span class="navbar-toggler-icon"></span>
 		  </button>
 
 		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 		    <ul class="navbar-nav mr-auto">
-				{% if current_user.is_authenticated %}
+				{% if current_user.is_authenticated and current_user.is_admin(current_user.roles) %}
 					<li class="nav-item active">
-						<a class="nav-link" href="{{ url_for('roles') }}" data-turbolinks="true">roles<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{{ url_for('roles') }}">roles<span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
-						<a class="nav-link" href="{{ url_for('users') }}" data-turbolinks="true">users<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{{ url_for('users') }}">users<span class="sr-only">(current)</span></a>
 					</li>
 				{% endif %}
 		    </ul>
 				<ul class="navbar-nav ml-auto">
 					<li class="nav-item active">
 						{% if current_user.is_authenticated %}
-						<a class="nav-link" href="{{ url_for('logout') }}" data-turbolinks="true">Logout<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{{ url_for('logout') }}">Logout<span class="sr-only">(current)</span></a>
 						{% else %}
-						<a class="nav-link" href="{{ url_for('login') }}" data-turbolinks="true">Login<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{{ url_for('login') }}">Login<span class="sr-only">(current)</span></a>
 						{% endif %}
 					</li>
 				</ul>

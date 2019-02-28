@@ -15,11 +15,11 @@
     {% endfor %}
   </table>
   {% if prev_url %}
-    <a href="{{ prev_url }}" data-turbolinks="true" class="button btn btn-info btn-md">previous</a>
+    <a href="{{ prev_url }}" class="button btn btn-info btn-md">previous</a>
   {% endif %}
   {% if next_url %}
-    <a href="{{ next_url }}" data-turbolinks="true" class="button btn btn-info btn-md">next</a>
+    <a href="{{ next_url }}" class="button btn btn-info btn-md">next</a>
   {% endif %}
   <hr>
-  <a href="{{ url_for('register') }}" data-turbolinks="true" class="button btn btn-block btn-success btn-lg">New User</a>
+  <a href="{{ url_for('register') }}" class="button btn btn-block btn-success btn-lg">New User</a>
 {% endblock %}

@@ -55,6 +55,22 @@ def db_seed():
     for _ in range(100):
         u = User(username=faker.name().lower().replace(" ", ""),
                  email=faker.email(),
-                 password_hash=generate_password_hash(faker.name()))
+                 password_hash=generate_password_hash('Password1234'))
         db.session.add(u)
         db.session.commit()
+
+
+# https://stackoverflow.com/questions/13317536/get-list-of-all-routes-defined-in-the-flask-app
+def has_no_empty_params(rule):
+    defaults = rule.defaults if rule.defaults is not None else ()
+    arguments = rule.arguments if rule.arguments is not None else ()
+    return len(defaults) >= len(arguments)
+
+@app.cli.command()
+def list_routes():
+    for rule in app.url_map.iter_rules():
+        # Filter out rules we can't navigate to in a browser
+        # and rules that require parameters
+        if "GET" in rule.methods and has_no_empty_params(rule):
+            url = app.url_for(rule.endpoint, **(rule.defaults or {}))
+            print(url,rule.endpoint)

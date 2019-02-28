@@ -2,7 +2,7 @@
 
 if [[ $1 == "start" ]]; then
   if [ -d "public" ]; then
-    rm public/*
+    rm ./public/*
     echo
     echo "[+] Webpack Assets Compile and Flask Start"
     echo "[+] webpack -p --progress --config webpack.config.js && flask run"
@@ -17,7 +17,7 @@ if [[ $1 == "start" ]]; then
   fi
 elif [[ $1 == "build" ]]; then
   if [ -d "public" ]; then
-    rm public/*
+    rm ./public/*
     echo
     echo "[+] Webpack Assets Compile"
     echo "[+] webpack -p --progress --config webpack.config.js"
@@ -33,7 +33,7 @@ elif [[ $1 == "build" ]]; then
   fi
 elif [[ $1 == "dev-build" ]]; then
   if [ -d "public" ]; then
-    rm public/*
+    rm ./public/*
     echo
     echo "[+] Webpack Assets Compile Dev Build"
     echo "[+] webpack -p --progress -d --config webpack.config.js"
@@ -49,7 +49,7 @@ elif [[ $1 == "dev-build" ]]; then
   fi
 elif [[ $1 == "watch" ]]; then
   if [ -d "public" ]; then
-    rm public/*
+    rm ./public/*
     echo
     echo "[+] Webpack Watch Assets"
     echo "[+] webpack --progress -d --config webpack.config.js --watch"
