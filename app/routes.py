@@ -56,5 +56,11 @@ def roles():
 
 @app.route('/users', methods=['GET'])
 def users():
-    users = User.query.all()
-    return render_template('admin/users/index.html', title='Users', users=users)
+    page = request.args.get('page', 1, type=int)
+    users = User.query.paginate(page, 10, False)
+    next_url = url_for('users', page=users.next_num) \
+        if users.has_next else None
+    prev_url = url_for('users', page=users.prev_num) \
+        if users.has_prev else None
+    return render_template('admin/users/index.html', title='Users', users=users.items,
+                            next_url=next_url, prev_url=prev_url)

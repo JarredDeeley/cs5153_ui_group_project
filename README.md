@@ -11,14 +11,14 @@ source venv/bin/activate
 flask db upgrade   # To do database migrations
 yarn              # To install node packages
 yarn seed         # To populate database
-yarn start/npm start
+yarn s/npm start
 ```
 
 **For Interactive Shell**
 ```bash
 flask shell
 # or
-yarn s
+yarn shell
 ```
 
 Logging into admin there is an admin user

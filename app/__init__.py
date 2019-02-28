@@ -53,7 +53,7 @@ def db_seed():
 
     # Create 100 users
     for _ in range(100):
-        u = User(username=faker.name(),
+        u = User(username=faker.name().lower().replace(" ", ""),
                  email=faker.email(),
                  password_hash=generate_password_hash(faker.name()))
         db.session.add(u)
