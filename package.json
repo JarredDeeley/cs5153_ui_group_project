@@ -4,7 +4,9 @@
   "description": "\"Clean Code Web Application\"",
   "main": "index.js",
   "scripts": {
-    "start": "bash run.sh start",
+    "s": "bash run.sh start",
+    "shell": "flask shell",
+    "seed": "flask db-seed",
     "build": "bash run.sh build",
     "dev-build": "bash run.sh dev-build",
     "test": "echo \"Error: no test specified\" && exit 1",

@@ -8,7 +8,20 @@
 #inside app folder
 pip install virtualenv
 source venv/bin/activate
-flask db upgrade
-yarn
-yarn start/npm start
+flask db upgrade   # To do database migrations
+yarn              # To install node packages
+yarn seed         # To populate database
+yarn s/npm start
 ```
+
+**For Interactive Shell**
+```bash
+flask shell
+# or
+yarn shell
+```
+
+Logging into admin there is an admin user
+* username: admin
+* password: admin
+* email: admin@example.com

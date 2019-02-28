@@ -1,7 +1,7 @@
 from flask import render_template, flash, redirect, request, url_for
 from flask_login import current_user, login_user, login_required, logout_user
 from app import app, db, config
-from app.models import User
+from app.models import User, Role
 from app.forms import LoginForm, RegistrationForm
 
 @app.route('/')
@@ -48,3 +48,19 @@ def register():
         return redirect(url_for('login'))
 
     return render_template('register.html', title='Register', form=form)
+
+@app.route('/roles', methods=['GET'])
+def roles():
+    roles = Role.query.all()
+    return render_template('admin/roles/index.html', title='Roles', roles=roles)
+
+@app.route('/users', methods=['GET'])
+def users():
+    page = request.args.get('page', 1, type=int)
+    users = User.query.paginate(page, 10, False)
+    next_url = url_for('users', page=users.next_num) \
+        if users.has_next else None
+    prev_url = url_for('users', page=users.prev_num) \
+        if users.has_prev else None
+    return render_template('admin/users/index.html', title='Users', users=users.items,
+                            next_url=next_url, prev_url=prev_url)

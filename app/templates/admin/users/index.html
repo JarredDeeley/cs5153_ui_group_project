@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="center">Users All</h1>
+  <table class="table table-hover">
+    <tr>
+      <th>Username</th>
+      <th>Email</th>
+    </tr>
+    {% for user in users %}
+    <tr>
+      <td>{{ user.username }}</td>
+      <td>{{ user.email }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% if prev_url %}
+    <a href="{{ prev_url }}" data-turbolinks="true" class="button btn btn-info btn-md">previous</a>
+  {% endif %}
+  {% if next_url %}
+    <a href="{{ next_url }}" data-turbolinks="true" class="button btn btn-info btn-md">next</a>
+  {% endif %}
+  <hr>
+  <a href="{{ url_for('register') }}" data-turbolinks="true" class="button btn btn-block btn-success btn-lg">New User</a>
+{% endblock %}
