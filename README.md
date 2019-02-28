@@ -14,11 +14,14 @@ yarn seed         # To populate database
 yarn start/npm start
 ```
 
-**Database Rebuild**
+**For Interactive Shell**
 ```bash
-yarn dbrebuild
+flask shell
+# or
+yarn s
 ```
 
 Logging into admin there is an admin user
 * username: admin
 * password: admin
+* email: admin@example.com

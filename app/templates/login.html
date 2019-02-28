@@ -14,6 +14,8 @@
       {{ form.password(size=32) }}<br>
     </p>
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
-    <p>{{ form.submit() }}</p>
+		<input id="submit" name="submit" type="submit" value="Sign In" class="button btn btn-success btn-lg">
 	</form>
+	<br>
+	<a href="{{ url_for('register') }}" data-turbolinks="true" class="button btn btn-warning btn-lg">Sign Up</a>
 {% endblock %}

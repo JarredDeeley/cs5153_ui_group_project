@@ -49,7 +49,12 @@ def register():
 
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/roles')
+@app.route('/roles', methods=['GET'])
 def roles():
     roles = Role.query.all()
-    return render_template('roles/index.html', title='Roles')
+    return render_template('admin/roles/index.html', title='Roles', roles=roles)
+
+@app.route('/users', methods=['GET'])
+def users():
+    users = User.query.all()
+    return render_template('admin/users/index.html', title='Users', users=users)
