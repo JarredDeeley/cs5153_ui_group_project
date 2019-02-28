@@ -49,12 +49,17 @@ def register():
 
     return render_template('register.html', title='Register', form=form)
 
-@app.route('/roles', methods=['GET'])
+
+@app.route('/admin/dashboard', methods=['GET'])
+def admin_dashboard():
+    return render_template('admin/dashboard.html', title='Admin Dashboard')
+
+@app.route('/admin/roles', methods=['GET'])
 def roles():
     roles = Role.query.all()
     return render_template('admin/roles/index.html', title='Roles', roles=roles)
 
-@app.route('/users', methods=['GET'])
+@app.route('/admin/users', methods=['GET'])
 def users():
     page = request.args.get('page', 1, type=int)
     users = User.query.paginate(page, 10, False)

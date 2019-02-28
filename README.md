@@ -11,7 +11,7 @@ source venv/bin/activate
 flask db upgrade   # To do database migrations
 yarn              # To install node packages
 yarn seed         # To populate database
-yarn s/npm start
+yarn s/npm s      # To start flask server
 ```
 
 **For Interactive Shell**
@@ -21,7 +21,26 @@ flask shell
 yarn shell
 ```
 
-Logging into admin there is an admin user
+**To see routes**
+
+Still working on this so for now to see routes
+```bash
+python
+from app import app
+app.url_map
+```
+```bash
+flask list-routes
+```
+
+Logging into admin interface
+
 * username: admin
 * password: admin
 * email: admin@example.com
+
+Logging into as normal user
+
+* username: <Can check for username after logging into admin>
+* password: Password1234
+* email: <Can check for user email after logging into admin>
