@@ -1,20 +1,19 @@
 from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import current_user, login_user, login_required, logout_user
-from app import app, db, config
+from app import app, db, config, admin_permission
 from app.models import User, Role
 from app.forms import LoginForm, RegistrationForm
-from flask_bouncer import requires
 from flask_classy import FlaskView # To make managing app routes easier
-
-@app.route('/')
-@app.route('/index')
-def index():
-    return render_template('index.html', title='Home')
 
 # Simple solution not secure
 @app.before_request
 def load_user():
     g.user = current_user
+
+@app.route('/')
+@app.route('/index')
+def index():
+    return render_template('index.html', title='Home')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -58,14 +57,14 @@ def logout():
 
 # Admin interface class's
 class AdminView(FlaskView):
-    decorators = [login_required]
+    decorators = [login_required, admin_permission.require()]
 
     # Index for admin dashboard
     def index(self):
         return render_template('admin/dashboard.html', title='Admin Dashboard')
 
 class AdminRoleView(FlaskView):
-    decorators = [login_required]
+    decorators = [login_required, admin_permission.require()]
 
     # Route for all roles
     def index(self):
@@ -84,7 +83,7 @@ class AdminRoleView(FlaskView):
         return render_template('admin/roles/edit.html', role=role)
 
 class AdminUserView(FlaskView):
-    decorators = [login_required]
+    decorators = [login_required, admin_permission.require()]
 
     # Route for users all
     def index(self):

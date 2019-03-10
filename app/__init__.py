@@ -3,30 +3,23 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-from flask_bouncer import Bouncer
+from flask_principal import Principal, Permission, RoleNeed
 
 app = Flask(__name__,static_folder="../public",template_folder="./templates")
 config = app.config.from_object(Config) # load config file
-bouncer = Bouncer(app) # For user authorization
 db = SQLAlchemy(app)   # SQLAlchemy database relations
 migrate = Migrate(app, db) # for database migrations
 login = LoginManager(app)
 login.login_view = 'login'
+
+principals = Principal(app)
+admin_permission = Permission(RoleNeed('admin'))
 
 # For recaptcha verification api keys
 app.config['RECAPTCHA_USE_SSL']= False
 app.config['RECAPTCHA_PUBLIC_KEY']='6LeGm5MUAAAAANEb9x2q5C1iwGp8mLgfy6xHRoB6'
 app.config['RECAPTCHA_PRIVATE_KEY']='6LeGm5MUAAAAAC74Uo4F-LGf90AZfzDjiXDmFhJw'
 app.config['RECAPTCHA_OPTIONS']= {'theme':'black'}
-
-# User authorization definitions
-@bouncer.authorization_method
-def define_authorization(user, they):
-    if user.is_admin:
-        they.can(MANAGE, ALL)
-    else:
-        they.can(READ, ('Home'))
-        they.can(EDIT, 'User')
 
 # Register add routes to make managing application easier
 from app import routes, models

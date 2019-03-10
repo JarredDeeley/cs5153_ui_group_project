@@ -39,3 +39,9 @@ Logging into as normal user
 * username: Can check for username after logging into admin interface
 * password: Password1234
 * email: Can check for user email after logging into admin interface
+
+Packages using
+
+* Flask-Login = User Authentication
+* Flask-Principal = User Authorization
+* 
