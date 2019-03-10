@@ -3,6 +3,8 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
 # For many to many relation ship with roles
+# A single user can have many roles
+# A single Role can have many users
 user_roles_association = db.Table('user_role',
     db.Column('user_id',db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('role_id',db.Integer, db.ForeignKey('role.id'), primary_key=True),
@@ -27,6 +29,7 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+    # You are either admin or not
     def is_admin(self, roles):
         return False if not roles else True
 

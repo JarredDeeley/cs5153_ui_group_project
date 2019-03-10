@@ -3,74 +3,76 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_bouncer import Bouncer
 
 app = Flask(__name__,static_folder="../public",template_folder="./templates")
-config = app.config.from_object(Config)
-db = SQLAlchemy(app)
-migrate = Migrate(app, db)
+config = app.config.from_object(Config) # load config file
+bouncer = Bouncer(app) # For user authorization
+db = SQLAlchemy(app)   # SQLAlchemy database relations
+migrate = Migrate(app, db) # for database migrations
 login = LoginManager(app)
 login.login_view = 'login'
 
+# For recaptcha verification api keys
 app.config['RECAPTCHA_USE_SSL']= False
 app.config['RECAPTCHA_PUBLIC_KEY']='6LeGm5MUAAAAANEb9x2q5C1iwGp8mLgfy6xHRoB6'
 app.config['RECAPTCHA_PRIVATE_KEY']='6LeGm5MUAAAAAC74Uo4F-LGf90AZfzDjiXDmFhJw'
 app.config['RECAPTCHA_OPTIONS']= {'theme':'black'}
 
-from app import routes, models
+# User authorization definitions
+@bouncer.authorization_method
+def define_authorization(user, they):
+    if user.is_admin:
+        they.can(MANAGE, ALL)
+    else:
+        they.can(READ, ('Home'))
+        they.can(EDIT, 'User')
 
-# For database seeding and flask shell
-from app.models import Role, User
+# Register add routes to make managing application easier
+from app import routes, models
 from faker import Faker
 from werkzeug.security import generate_password_hash
 
+# app routes registration
+routes.AdminView.register(app,route_base='/admin')
+routes.AdminUserView.register(app,route_base='/admin/users')
+routes.AdminRoleView.register(app,route_base='/admin/roles')
+
+# For Flask Shell
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': User, 'Role': Role}
+    return {'db': db, 'User': models.User, 'Role': models.Role}
 
+# For database population/seeding
 @app.cli.command()
 def db_seed():
     faker = Faker()
     db.create_all()
     # Creating role
-    if db.session.query(Role.id).filter_by(name='admin').scalar() is not None:
-        pass
-    else:
-        r = Role(name='admin',description='The all powerfull admin!!!')
+    if db.session.query(models.Role.id).filter_by(name='admin').scalar() is None:
+        r = models.Role(name='admin',description='The all powerfull admin!!!')
         db.session.add(r)
         db.session.commit()
 
     # Create admin user
-    if db.session.query(User.id).filter_by(username='admin').scalar() is not None:
-        pass
-    else:
-        u = User(username='admin',
+    if db.session.query(models.User.id).filter_by(username='admin').scalar() is None:
+        u = models.User(username='admin',
                  email='admin@example.com',
                  password_hash=generate_password_hash('admin'))
         db.session.add(u)
         db.session.commit()
-        u.roles.append(Role.query.get(1)) # add admin role
+        u.roles.append(models.Role.query.get(1)) # add admin role
         db.session.commit()
 
-    # Create 100 users
+    # Create random 100 users
     for _ in range(100):
-        u = User(username=faker.name().lower().replace(" ", ""),
+        u = models.User(username=faker.name().lower().replace(" ", ""),
                  email=faker.email(),
                  password_hash=generate_password_hash('Password1234'))
         db.session.add(u)
         db.session.commit()
 
-
-# https://stackoverflow.com/questions/13317536/get-list-of-all-routes-defined-in-the-flask-app
-def has_no_empty_params(rule):
-    defaults = rule.defaults if rule.defaults is not None else ()
-    arguments = rule.arguments if rule.arguments is not None else ()
-    return len(defaults) >= len(arguments)
-
+# Command line option to display current routes
 @app.cli.command()
 def list_routes():
-    for rule in app.url_map.iter_rules():
-        # Filter out rules we can't navigate to in a browser
-        # and rules that require parameters
-        if "GET" in rule.methods and has_no_empty_params(rule):
-            url = app.url_for(rule.endpoint, **(rule.defaults or {}))
-            print(url,rule.endpoint)
+    print(app.url_map)
