@@ -3,7 +3,6 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
-from flask_principal import Principal, Permission, RoleNeed
 
 app = Flask(__name__,static_folder="../public",template_folder="./templates")
 config = app.config.from_object(Config) # load config file
@@ -11,9 +10,6 @@ db = SQLAlchemy(app)   # SQLAlchemy database relations
 migrate = Migrate(app, db) # for database migrations
 login = LoginManager(app)
 login.login_view = 'login'
-
-principals = Principal(app)
-admin_permission = Permission(RoleNeed('admin'))
 
 # For recaptcha verification api keys
 app.config['RECAPTCHA_USE_SSL']= False

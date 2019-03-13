@@ -1,14 +1,27 @@
 from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import current_user, login_user, login_required, logout_user
-from app import app, db, config, admin_permission
+from app import app, db, config
 from app.models import User, Role
 from app.forms import LoginForm, RegistrationForm
 from flask_classy import FlaskView # To make managing app routes easier
+from functools import wraps
 
 # Simple solution not secure
 @app.before_request
 def load_user():
     g.user = current_user
+
+# For user authorizations
+def requires_role(role):
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if not current_user.has_role(role):
+                flash(u'You are not authorized to view that','error')
+                return render_template('index.html', title='Home')
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 @app.route('/')
 @app.route('/index')
@@ -57,14 +70,14 @@ def logout():
 
 # Admin interface class's
 class AdminView(FlaskView):
-    decorators = [login_required, admin_permission.require()]
+    decorators = [login_required, requires_role('admin')]
 
     # Index for admin dashboard
     def index(self):
         return render_template('admin/dashboard.html', title='Admin Dashboard')
 
 class AdminRoleView(FlaskView):
-    decorators = [login_required, admin_permission.require()]
+    decorators = [login_required, requires_role('admin')]
 
     # Route for all roles
     def index(self):
@@ -83,7 +96,7 @@ class AdminRoleView(FlaskView):
         return render_template('admin/roles/edit.html', role=role)
 
 class AdminUserView(FlaskView):
-    decorators = [login_required, admin_permission.require()]
+    decorators = [login_required, requires_role('admin')]
 
     # Route for users all
     def index(self):

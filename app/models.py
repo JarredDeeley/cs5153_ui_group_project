@@ -29,9 +29,9 @@ class User(UserMixin, db.Model):
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
 
-    # You are either admin or not
-    def is_admin(self, roles):
-        return False if not roles else True
+    def has_role(self,role_sym):
+        # This probably won't work properly for multiple roles
+        return [True if role.name == role_sym else False for role in self.roles]
 
 class Role(db.Model):
     id = db.Column(db.Integer, primary_key=True)
