@@ -6,13 +6,17 @@
     <tr>
       <th>Name</th>
       <th>Description</th>
+      <th></th>
+      <th></th>
     </tr>
     {% for role in roles %}
     <tr>
       <td>{{ role.name }}</td>
       <td>{{ role.description }}</td>
+      <td><a href="{{ url_for('AdminRoleView:show',id=role.id) }}" class="button btn btn-primary btn-md btn-block">show</a></td>
+      <td><a href="{{ url_for('AdminRoleView:edit',id=role.id) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
     </tr>
     {% endfor %}
   </table>
-  <a href="{{ url_for('register') }}" class="button btn btn-block btn-success btn-lg">New Role</a>
+  <a href="{{ url_for('AdminRoleView:new') }}" class="button btn btn-block btn-success btn-lg">New Role</a>
 {% endblock %}

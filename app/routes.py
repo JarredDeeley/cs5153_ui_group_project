@@ -1,12 +1,13 @@
 from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import current_user, login_user, login_required, logout_user
-from app import app, db, config
+from app import app, config
 from app.models import User, Role
-from app.forms import LoginForm, RegistrationForm
+from app.forms import *
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
 
-# Simple solution not secure
+# Simple solution to flask-classy issue but not secure
+# We aren't starting a company it doesn't matter
 @app.before_request
 def load_user():
     g.user = current_user
@@ -52,13 +53,9 @@ def register():
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
+        form.save()
         flash(u'Congratulations, you are now a registered user!', 'success')
         return redirect(url_for('login'))
-
     return render_template('register.html', title='Register', form=form)
 
 @app.route("/logout")
@@ -81,19 +78,29 @@ class AdminRoleView(FlaskView):
 
     # Route for all roles
     def index(self):
-        roles = Role.query.all()
-        return render_template('admin/roles/index.html', title='Roles', roles=roles)
+        return render_template('admin/roles/index.html', title='Roles',
+                                roles=Role.query.all())
 
-    @app.route('/admin/role/<id>', methods=['GET'])
-    @app.route('/admin/role/<id>/show', methods=['GET'])
-    def show_role(self, id):
-        role = Role.querry.get(id)
-        return render_template('admin/roles/show.html', role=role)
+    def post(self, msg):
+        form = RoleForm()
+        if form.validate_on_submit():
+            msg = msg.split(",")
+            # if a new entry create else update
+            form.save(msg[1],True) if msg[0] == 'created' else form.save(msg[1],False)
+            flash(u'You have successfully %s the %s role!!' % (msg[0], form.name.data), 'success')
+            return render_template('admin/roles/index.html', title='Roles',
+                                roles=Role.query.all())
 
-    @app.route('/admin/role/<id>/edit', methods=['GET','POST'])
-    def edit_role(self, id):
-        role = Role.querry.get(id)
-        return render_template('admin/roles/edit.html', role=role)
+    def new(self):
+        return render_template('admin/roles/new.html', form=RoleForm())
+
+    def edit(self, id):
+        return render_template('admin/roles/edit.html', form=RoleForm(),
+                                role=Role.query.get(id), msg="updated,"+str(id))
+
+    def show(self, id):
+        return render_template('admin/roles/show.html', role=Role.query.get(id))
+
 
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
@@ -109,13 +116,16 @@ class AdminUserView(FlaskView):
         return render_template('admin/users/index.html', title='Users', users=users.items,
                                 next_url=next_url, prev_url=prev_url)
 
-    @app.route('/admin/user/<id>', methods=['GET'])
-    @app.route('/admin/user/<id>/show', methods=['GET'])
-    def show_user(self, id):
-        user = User.querry.get(id)
-        return render_template('admin/users/show.html', user=user)
+    def post(self, id):
+        form = UserForm()
+        if form.validate_on_submit():
+            form.save(id)
+            flash(u'You have successfully udated user %s' % (form.username.data), 'success')
+            return render_template('admin/users/index.html', title='Users',
+                                users=User.query.all())
 
-    @app.route('/admin/user/<id>/edit', methods=['GET','POST'])
-    def edit_user(self, id):
-        user = User.querry.get(id)
-        return render_template('admin/users/edit.html', user=user)
+    def edit(self, id):
+        return render_template('admin/users/edit.html', form=UserForm(), user=User.query.get(id))
+
+    def show(self, id):
+        return render_template('admin/users/show.html', user=User.query.get(id))

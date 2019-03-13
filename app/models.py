@@ -30,7 +30,6 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     def has_role(self,role_sym):
-        # This probably won't work properly for multiple roles
         return [True if role.name == role_sym else False for role in self.roles]
 
 class Role(db.Model):
