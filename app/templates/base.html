@@ -15,8 +15,8 @@
   </head>
   <body>
 		<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-			{% if current_user.is_authenticated and current_user.is_admin(current_user.roles) %}
-			<a class="navbar-brand" href="{{ url_for('admin_dashboard') }}">Admin</a>
+			{% if current_user.is_authenticated and current_user.has_role('admin') %}
+			<a class="navbar-brand" href="{{ url_for('AdminView:index') }}">Admin</a>
 			{% else %}
 		 	<a class="navbar-brand" href="{{ url_for('index') }}">Clean Code</a>
 			{% endif %}
@@ -26,12 +26,12 @@
 
 		  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 		    <ul class="navbar-nav mr-auto">
-				{% if current_user.is_authenticated and current_user.is_admin(current_user.roles) %}
+				{% if current_user.is_authenticated and current_user.has_role('admin') %}
 					<li class="nav-item active">
-						<a class="nav-link" href="{{ url_for('roles') }}">roles<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{{ url_for('AdminRoleView:index') }}">roles<span class="sr-only">(current)</span></a>
 					</li>
 					<li class="nav-item active">
-						<a class="nav-link" href="{{ url_for('users') }}">users<span class="sr-only">(current)</span></a>
+						<a class="nav-link" href="{{ url_for('AdminUserView:index') }}">users<span class="sr-only">(current)</span></a>
 					</li>
 				{% endif %}
 		    </ul>

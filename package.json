@@ -10,7 +10,8 @@
     "build": "bash run.sh build",
     "dev-build": "bash run.sh dev-build",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "watch": "bash run.sh watch"
+    "watch": "bash run.sh watch",
+    "routes": "flask list-routes"
   },
   "repository": {
     "type": "git",

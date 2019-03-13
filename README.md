@@ -22,15 +22,10 @@ yarn shell
 ```
 
 **To see routes**
-
-Still working on this so for now to see routes
-```bash
-python
-from app import app
-app.url_map
-```
 ```bash
 flask list-routes
+or
+yarn routes
 ```
 
 Logging into admin interface
@@ -41,6 +36,12 @@ Logging into admin interface
 
 Logging into as normal user
 
-* username: <Can check for username after logging into admin>
+* username: Can check for username after logging into admin interface
 * password: Password1234
-* email: <Can check for user email after logging into admin>
+* email: Can check for user email after logging into admin interface
+
+Packages using
+
+* Flask-Login = User Authentication
+* Flask-Principal = User Authorization
+* 

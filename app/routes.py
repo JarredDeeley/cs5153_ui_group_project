@@ -1,8 +1,28 @@
-from flask import render_template, flash, redirect, request, url_for
+from flask import render_template, flash, redirect, request, url_for, g
 from flask_login import current_user, login_user, login_required, logout_user
-from app import app, db, config
+from app import app, config
 from app.models import User, Role
-from app.forms import LoginForm, RegistrationForm
+from app.forms import *
+from flask_classy import FlaskView # To make managing app routes easier
+from functools import wraps
+
+# Simple solution to flask-classy issue but not secure
+# We aren't starting a company it doesn't matter
+@app.before_request
+def load_user():
+    g.user = current_user
+
+# For user authorizations
+def requires_role(role):
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            if not current_user.has_role(role):
+                flash(u'You are not authorized to view that','error')
+                return render_template('index.html', title='Home')
+            return f(*args, **kwargs)
+        return wrapped
+    return wrapper
 
 @app.route('/')
 @app.route('/index')
@@ -27,6 +47,17 @@ def login():
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
+    form = RegistrationForm()
+    if form.validate_on_submit():
+        form.save()
+        flash(u'Congratulations, you are now a registered user!', 'success')
+        return redirect(url_for('login'))
+    return render_template('register.html', title='Register', form=form)
+
 @app.route("/logout")
 @login_required
 def logout():
@@ -34,38 +65,67 @@ def logout():
     flash(u'Successfully Signed out', 'success')
     return redirect(url_for('index'))
 
-@app.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash(u'Congratulations, you are now a registered user!', 'success')
-        return redirect(url_for('login'))
+# Admin interface class's
+class AdminView(FlaskView):
+    decorators = [login_required, requires_role('admin')]
 
-    return render_template('register.html', title='Register', form=form)
+    # Index for admin dashboard
+    def index(self):
+        return render_template('admin/dashboard.html', title='Admin Dashboard')
+
+class AdminRoleView(FlaskView):
+    decorators = [login_required, requires_role('admin')]
+
+    # Route for all roles
+    def index(self):
+        return render_template('admin/roles/index.html', title='Roles',
+                                roles=Role.query.all())
+
+    def post(self, msg):
+        form = RoleForm()
+        if form.validate_on_submit():
+            msg = msg.split(",")
+            # if a new entry create else update
+            form.save(msg[1],True) if msg[0] == 'created' else form.save(msg[1],False)
+            flash(u'You have successfully %s the %s role!!' % (msg[0], form.name.data), 'success')
+            return render_template('admin/roles/index.html', title='Roles',
+                                roles=Role.query.all())
+
+    def new(self):
+        return render_template('admin/roles/new.html', form=RoleForm())
+
+    def edit(self, id):
+        return render_template('admin/roles/edit.html', form=RoleForm(),
+                                role=Role.query.get(id), msg="updated,"+str(id))
+
+    def show(self, id):
+        return render_template('admin/roles/show.html', role=Role.query.get(id))
 
 
-@app.route('/admin/dashboard', methods=['GET'])
-def admin_dashboard():
-    return render_template('admin/dashboard.html', title='Admin Dashboard')
+class AdminUserView(FlaskView):
+    decorators = [login_required, requires_role('admin')]
 
-@app.route('/admin/roles', methods=['GET'])
-def roles():
-    roles = Role.query.all()
-    return render_template('admin/roles/index.html', title='Roles', roles=roles)
+    # Route for users all
+    def index(self):
+        page = request.args.get('page', 1, type=int)
+        users = User.query.paginate(page, 10, False)
+        next_url = url_for('AdminUserView:index', page=users.next_num) \
+            if users.has_next else None
+        prev_url = url_for('AdminUserView:index', page=users.prev_num) \
+            if users.has_prev else None
+        return render_template('admin/users/index.html', title='Users', users=users.items,
+                                next_url=next_url, prev_url=prev_url)
 
-@app.route('/admin/users', methods=['GET'])
-def users():
-    page = request.args.get('page', 1, type=int)
-    users = User.query.paginate(page, 10, False)
-    next_url = url_for('users', page=users.next_num) \
-        if users.has_next else None
-    prev_url = url_for('users', page=users.prev_num) \
-        if users.has_prev else None
-    return render_template('admin/users/index.html', title='Users', users=users.items,
-                            next_url=next_url, prev_url=prev_url)
+    def post(self, id):
+        form = UserForm()
+        if form.validate_on_submit():
+            form.save(id)
+            flash(u'You have successfully udated user %s' % (form.username.data), 'success')
+            return render_template('admin/users/index.html', title='Users',
+                                users=User.query.all())
+
+    def edit(self, id):
+        return render_template('admin/users/edit.html', form=UserForm(), user=User.query.get(id))
+
+    def show(self, id):
+        return render_template('admin/users/show.html', user=User.query.get(id))
