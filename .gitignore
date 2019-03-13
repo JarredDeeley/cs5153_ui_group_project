@@ -8,4 +8,10 @@
 /node_modules
 /public
 
+# Ignore ckeditor uploader files
+/uploads/*.jpg
+/uploads/*.gif
+/uploads/*.png
+/uploads/*.jpeg
+
 yarn-error.log

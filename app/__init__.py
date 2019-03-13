@@ -3,19 +3,17 @@ from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from flask_login import LoginManager
+from flask_ckeditor import CKEditor
+from flask_wtf import CSRFProtect
 
 app = Flask(__name__,static_folder="../public",template_folder="./templates")
 config = app.config.from_object(Config) # load config file
 db = SQLAlchemy(app)   # SQLAlchemy database relations
 migrate = Migrate(app, db) # for database migrations
-login = LoginManager(app)
+ckeditor = CKEditor(app) # For content management system (CMS)
+login = LoginManager(app) # For user login
+csrf = CSRFProtect(app)
 login.login_view = 'login'
-
-# For recaptcha verification api keys
-app.config['RECAPTCHA_USE_SSL']= False
-app.config['RECAPTCHA_PUBLIC_KEY']='6LeGm5MUAAAAANEb9x2q5C1iwGp8mLgfy6xHRoB6'
-app.config['RECAPTCHA_PRIVATE_KEY']='6LeGm5MUAAAAAC74Uo4F-LGf90AZfzDjiXDmFhJw'
-app.config['RECAPTCHA_OPTIONS']= {'theme':'black'}
 
 # Register add routes to make managing application easier
 from app import routes, models
@@ -26,18 +24,20 @@ from werkzeug.security import generate_password_hash
 routes.AdminView.register(app,route_base='/admin')
 routes.AdminUserView.register(app,route_base='/admin/users')
 routes.AdminRoleView.register(app,route_base='/admin/roles')
+routes.AdminTopicView.register(app,route_base='/admin/topics')
 
 # For Flask Shell
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': models.User, 'Role': models.Role}
+    return {'db': db, 'User': models.User, 'Role': models.Role, 'Topics': models.Topic}
 
 # For database population/seeding
 @app.cli.command()
 def db_seed():
     faker = Faker()
     db.create_all()
-    # Creating role
+
+    # Create admin role
     if db.session.query(models.Role.id).filter_by(name='admin').scalar() is None:
         r = models.Role(name='admin',description='The all powerfull admin!!!')
         db.session.add(r)

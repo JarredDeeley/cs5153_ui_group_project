@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="center">Topics All</h1>
+  <table class="table table-hover">
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for topic in topics %}
+    <tr>
+      <td>{{ topic.name }}</td>
+      <td>{{ topic.description }}</td>
+      <td><a href="{{ url_for('AdminTopicView:show',id=topic.id) }}" class="button btn btn-primary btn-md btn-block">show</a></td>
+      <td><a href="{{ url_for('AdminTopicView:edit',id=topic.id) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ url_for('AdminTopicView:new') }}" class="button btn btn-block btn-success btn-lg">New Topic</a>
+{% endblock %}

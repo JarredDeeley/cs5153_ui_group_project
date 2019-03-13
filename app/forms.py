@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm, RecaptchaField
 from wtforms import StringField, PasswordField, BooleanField, SubmitField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
+from flask_ckeditor import CKEditorField
 from app.models import *
 from app import db
 
@@ -8,6 +9,22 @@ class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password', validators=[DataRequired()])
     remember_me = BooleanField('Remember Me')
+
+class TopicForm(FlaskForm):
+    name = StringField('Name', validators=[DataRequired()])
+    description = StringField('Description', validators=[DataRequired()])
+    text = CKEditorField('Text', validators=[DataRequired()])
+
+    def save(self,id,new=False):
+        if new:
+            topic = Topic(name=self.name.data,description=self.description.data,text=self.text.data)
+            db.session.add(topic)
+        else:
+            topic = Role.query.get(id)
+            topic.name = self.name.data
+            topic.description = self.description.data
+            topic.text = self.text.data
+        db.session.commit()
 
 class RoleForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])

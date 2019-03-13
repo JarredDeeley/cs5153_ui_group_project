@@ -1,16 +1,11 @@
-from flask import render_template, flash, redirect, request, url_for, g
+from flask import render_template, flash, redirect, request, url_for, g, send_from_directory
 from flask_login import current_user, login_user, login_required, logout_user
-from app import app, config
-from app.models import User, Role
-from app.forms import *
+from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
-
-# Simple solution to flask-classy issue but not secure
-# We aren't starting a company it doesn't matter
-@app.before_request
-def load_user():
-    g.user = current_user
+from app import app, config
+from app.models import *
+from app.forms import *
 
 # For user authorizations
 def requires_role(role):
@@ -24,6 +19,29 @@ def requires_role(role):
         return wrapped
     return wrapper
 
+# Simple solution to flask-classy issue but not secure
+# We aren't starting a company it doesn't matter
+@app.before_request
+def load_user():
+    g.user = current_user
+
+@app.route('/uploads/<filename>')
+def uploaded_files(filename):
+    path = app.config['UPLOADED_PATH']
+    return send_from_directory(path, filename)
+
+@app.route('/upload', methods=['POST'])
+def upload():
+    import os
+    f = request.files.get('upload')
+    extension = f.filename.split('.')[1].lower()
+    if extension not in ['jpg', 'gif', 'png', 'jpeg']:
+        return upload_fail(message='Image only!')
+    f.save(os.path.join(app.config['UPLOADED_PATH'], f.filename))
+    url = url_for('uploaded_files', filename=f.filename)
+    return upload_success(url=url)
+
+# Where actual routes start
 @app.route('/')
 @app.route('/index')
 def index():
@@ -101,6 +119,33 @@ class AdminRoleView(FlaskView):
     def show(self, id):
         return render_template('admin/roles/show.html', role=Role.query.get(id))
 
+class AdminTopicView(FlaskView):
+    decorators = [login_required, requires_role('admin')]
+
+    # Route for all roles
+    def index(self):
+        return render_template('admin/topics/index.html', title='Topics',
+                                topics=Topic.query.all())
+
+    def post(self, msg):
+        form = TopicForm()
+        if form.validate_on_submit():
+            msg = msg.split(",")
+            # if a new entry create else update
+            form.save(msg[0],True) if msg[0] == 'created' else form.save(msg[1],False)
+            flash(u'You have successfully %s the %s topic!!' % (msg[0], form.name.data), 'success')
+            return render_template('admin/topics/index.html', title='Topics',
+                                topics=Topic.query.all())
+
+    def new(self):
+        return render_template('admin/topics/new.html', form=TopicForm())
+
+    def edit(self, id):
+        return render_template('admin/topics/edit.html', form=TopicForm(),
+                                topic=Topic.query.get(id), msg="updated,"+str(id))
+
+    def show(self, id):
+        return render_template('admin/topics/show.html', topic=Topic.query.get(id))
 
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]

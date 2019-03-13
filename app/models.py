@@ -21,7 +21,7 @@ class User(UserMixin, db.Model):
     roles = db.relationship('Role', secondary=user_roles_association)
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)
+        return '<User {}>'.format(self.username, self.email, self.created_at)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -41,7 +41,17 @@ class Role(db.Model):
     users = db.relationship('User', secondary=user_roles_association)
 
     def __repr__(self):
-        return '<Role {}>'.format(self.name)
+        return '<Role {}>'.format(self.name, self.description, self.created_at)
+
+class Topic(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(64), index=True, unique=True)
+    description = db.Column(db.String(64), index=True, unique=True)
+    text = db.Column(db.Text, index=True, unique=True)
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    def __repr__(self):
+        return '<Role {}>'.format(self.name, self.description, self.created_at)
 
 @login.user_loader
 def load_user(id):
