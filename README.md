@@ -4,9 +4,20 @@
 
 **Install [yarn](https://yarnpkg.com/lang/en/docs/install/#debian-stable) package manager or nodejs package manager (npm)**
 
+**Create virtual environment**
+```bash
+# If using python 3
+python3 -m venv venv
+# if using python 3.4 or less
+virtualenv venv
+
+source venv/bin/activate
+pip install -r requirements.txt
+```
+
+**Using virtual environment**
 ```bash
 #inside app folder
-pip install virtualenv
 source venv/bin/activate
 flask db upgrade   # To do database migrations
 yarn              # To install node packages
@@ -28,6 +39,12 @@ or
 yarn routes
 ```
 
+**After adding new libs**
+
+Be sure to update the requirements.txt
+```bash
+pip freeze > requirements.txt
+```
 Logging into admin interface
 
 * username: admin
