@@ -1,4 +1,4 @@
-#!/usr/bin/env ./venv/bin/python3
+#!./venv/bin/python3
 # EASY-INSTALL-ENTRY-SCRIPT: 'alembic==1.0.7','console_scripts','alembic'
 __requires__ = 'alembic==1.0.7'
 import re
