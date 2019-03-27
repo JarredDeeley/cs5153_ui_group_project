@@ -4,7 +4,7 @@
   <h1 class="center">Edit Topic</h1>
   <form action="{{ url_for('AdminTopicView:post',msg=msg) }}" method="post">
     {{ form.csrf_token }}
-    {{ form.iden(value=id) }}
+    {{ form.iden(value=topic.id) }}
     <p>
       {{ form.name.label }}<br>
       {{ form.name(size=32,placeholder=topic.name) }}<br>

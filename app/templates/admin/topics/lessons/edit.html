@@ -5,7 +5,7 @@
   <form action="{{ url_for('AdminLessonView:post',tid=tid,msg=msg) }}" method="post">
     {{ form.csrf_token }}
     {{ form.tidf(value=tid) }}
-    {{ form.iden(value=id) }}
+    {{ form.iden(value=lesson.id) }}
     <p>
       {{ form.name.label }}<br>
       {{ form.name(size=32,placeholder=lesson.name) }}<br>

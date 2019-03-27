@@ -204,8 +204,8 @@ class AdminLessonView(AdminTopicView):
 
     def edit(self, id, tid):
         return render_template('admin/topics/lessons/edit.html', form=LessonForm(),
-                                lesson=Lesson.query.get(id), msg='updated', id=id,
-                                tid=tid, back_url=redirect_back('AdminTopicView:index'))
+                                lesson=Lesson.query.get(id), msg='updated', tid=tid,
+                                back_url=redirect_back('AdminTopicView:index'))
 
     def show(self, id, tid):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
