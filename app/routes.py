@@ -57,8 +57,14 @@ def upload():
     url = url_for('uploaded_files', filename=f.filename)
     return upload_success(url=url)
 
-# Where actual routes start
-# Root url
+######################################
+######################################
+##                                  ##
+##        Where Routes start        ##
+##                                  ##
+######################################
+######################################
+
 @app.route('/')
 @app.route('/index')
 def index():
@@ -103,7 +109,14 @@ def logout():
     flash(u'Successfully Signed out', 'success')
     return redirect(url_for('index'))
 
-# Admin interface class's
+######################################
+######################################
+##                                  ##
+##    Start of Admin users Routes   ##
+##                                  ##
+######################################
+######################################
+
 class AdminView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
@@ -228,3 +241,29 @@ class AdminUserView(FlaskView):
     def show(self, id):
         return render_template('admin/users/show.html', user=User.query.get(id),
                                 back_url=redirect_back('AdminUserView:index'))
+
+######################################
+######################################
+##                                  ##
+## Start of Non Admin users Routes  ##
+##                                  ##
+######################################
+######################################
+
+class TopicView(FlaskView):
+    # Route for all topics
+    def index(self):
+        return render_template('topics/index.html', title='Topics',
+                                topics=Topic.query.all())
+
+    def show(self, id):
+        return render_template('topics/show.html', topic=Topic.query.get(id),
+                                back_url=redirect_back('TopicView:index'))
+
+# Inheriting from TopicView is just for naming conventions
+# This allows for nested resources in flask
+class LessonView(TopicView):
+
+    def show(self, id, tid):
+        return render_template('topics/lessons/show.html', lesson=Lesson.query.get(id),
+                                tid=tid, back_url=redirect_back('TopicView:index'))

@@ -20,13 +20,16 @@ from app import routes, models
 from faker import Faker
 from werkzeug.security import generate_password_hash
 
-# app routes registration
+# Admin users routes registration
 routes.AdminView.register(app,route_base='/admin')
 routes.AdminUserView.register(app,route_base='/admin/users')
 routes.AdminRoleView.register(app,route_base='/admin/roles')
 routes.AdminTopicView.register(app,route_base='/admin/topics')
-# A way to do nested resources with flask-classy
 routes.AdminLessonView.register(app,route_base='/admin/topics/<tid>/lessons')
+
+# Regular users routes registration
+routes.TopicView.register(app,route_base='/topics')
+routes.LessonView.register(app,route_base='/topics/<tid>/lessons')
 
 # For Flask Shell
 @app.shell_context_processor
