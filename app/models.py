@@ -76,7 +76,7 @@ class Lesson(db.Model):
     # What gets printed in flask shell or yarn shell when
     # querying Lessons
     def __repr__(self):
-        return '<Topic {}>'.format(self.name, self.description, self.created_at)
+        return '<Lesson {}>'.format(self.name, self.description, self.created_at)
 
 @login.user_loader
 def load_user(id):
