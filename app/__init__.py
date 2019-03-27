@@ -25,11 +25,14 @@ routes.AdminView.register(app,route_base='/admin')
 routes.AdminUserView.register(app,route_base='/admin/users')
 routes.AdminRoleView.register(app,route_base='/admin/roles')
 routes.AdminTopicView.register(app,route_base='/admin/topics')
+# A way to do nested resources with flask-classy
+routes.AdminLessonView.register(app,route_base='/admin/topics/<tid>/lessons')
 
 # For Flask Shell
 @app.shell_context_processor
 def make_shell_context():
-    return {'db': db, 'User': models.User, 'Role': models.Role, 'Topics': models.Topic}
+    return {'db': db, 'User': models.User, 'Role': models.Role,
+            'Topic': models.Topic, 'Lesson': models.Lesson }
 
 # For database population/seeding
 @app.cli.command()

@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 class="center">Edit Topic</h1>
-  <form action="{{ url_for('AdminTopicView:post',msg=msg) }}" method="post">
+  <h1 class="center">Edit Lesson</h1>
+  <form action="{{ url_for('AdminLessonView:post',tid=tid,msg=msg) }}" method="post">
     {{ form.csrf_token }}
+    {{ form.tidf(value=tid) }}
     {{ form.iden(value=id) }}
     <p>
       {{ form.name.label }}<br>
-      {{ form.name(size=32,placeholder=topic.name) }}<br>
+      {{ form.name(size=32,placeholder=lesson.name) }}<br>
     </p>
     <p>
       {{ form.description.label }}<br>
-      {{ form.description(size=60,placeholder=topic.description) }}<br>
+      {{ form.description(size=60,placeholder=lesson.description) }}<br>
     </p>
     <p>
       {{ form.text.label }}<br>
       {{ form.text }}
     </p>
     <p>
-      <input id="submit" name="submit" type="submit" value="update topic" class="button btn btn-success btn-lg">
+      <input id="submit" name="submit" type="submit" value="update lesson" class="button btn btn-success btn-lg">
       <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
     </p>
   </form>
