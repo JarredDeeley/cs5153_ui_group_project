@@ -194,8 +194,8 @@ class AdminLessonView(AdminTopicView):
         if form.validate_on_submit():
             # if a new entry create else update
             form.save(True) if msg == 'created' else form.save(False)
-            flash(u'You have successfully %s the %s Lesson!!' % (msg[0], form.name.data), 'success')
-            return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
+            flash(u'You have successfully %s the %s Lesson!!' % (msg, form.name.data), 'success')
+            return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(form.iden.data),
                                     tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
     def new(self, tid):
