@@ -1,9 +1,10 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 class="center">New Topic</h1>
-  <form action="{{ url_for('AdminTopicView:post',msg=msg) }}" method="post">
+  <h1 class="center">New Lesson</h1>
+  <form action="{{ url_for('AdminLessonView:post',msg=msg,tid=tid) }}" method="post">
     {{ form.csrf_token }}
+    {{ form.tidf(value=tid) }}
     <p>
       {{ render_field(form.name, class='form-control') }}<br>
     </p>
@@ -14,7 +15,7 @@
       {{ render_field(form.text, class='form-control') }}
     </p>
     <p>
-      <input id="submit" name="submit" type="submit" value="create topic" class="button btn btn-success btn-lg">
+      <input id="submit" name="submit" type="submit" value="create lesson" class="button btn btn-success btn-lg">
       <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
     </p>
   </form>

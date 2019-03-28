@@ -18,3 +18,4 @@ yarn-error.log
 
 # Ignore venv folder
 /venv
+/app/venv

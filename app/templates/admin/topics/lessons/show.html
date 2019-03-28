@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="center">Lesson</h1>
+  <p>Name: {{ lesson.name }}</p>
+  <p>Description: {{ lesson.description }}</p>
+  <p>{{ lesson.text|safe }}</p>
+  <p>
+    <a href="{{ url_for('AdminLessonView:edit',id=lesson.id,tid=tid) }}" class="button btn btn-warning btn-lg">Edit</a>
+    <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+  </p>
+{% endblock %}
