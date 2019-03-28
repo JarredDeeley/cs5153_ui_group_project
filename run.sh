@@ -15,6 +15,21 @@ if [[ $1 == "start" ]]; then
     webpack -p --progress --config webpack.config.js
     flask run
   fi
+elif [[ $1 == "start-dev" ]]; then
+  if [ -d "public" ]; then
+    echo
+    echo "[+] Start Webpack Development Server and Flask Start"
+    echo "[+] honcho start"
+    echo
+    honcho start
+  else
+    mkdir public
+    echo
+    echo "[+] Webpack Assets Compile and Flask Start"
+    echo "[+] honcho start"
+    echo
+    honcho start
+  fi
 elif [[ $1 == "build" ]]; then
   if [ -d "public" ]; then
     rm ./public/*
