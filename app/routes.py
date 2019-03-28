@@ -62,8 +62,8 @@ def index():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+#    if current_user.is_authenticated:
+#        return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         form.save()
@@ -78,6 +78,12 @@ def logout():
     flash(u'Successfully Signed out', 'success')
 #    return render_template('index.html', title='Home', form=form) 
     return redirect(url_for('index'))
+
+@app.route('/topics')
+@login_required
+def topics():
+    if current_user.is_authenticated:
+        return render_template('topics.html', title='Topics')
 
 # Admin interface class's
 class AdminView(FlaskView):
