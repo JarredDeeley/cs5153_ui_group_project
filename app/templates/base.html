@@ -8,16 +8,15 @@
 		{% endif %}
 		<meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-		<script src="../../public/application_js.js"></script>
-		<script src="../../public/application_css.js"></script>
-		<script src="../../public/bootstrap_js.js"></script>
-		<script src="../../public/bootstrap_css.js"></script>
+		<script src="http://localhost:8080/app_js.js"></script>
+		<script src="http://localhost:8080/app_css.js"></script>
+		<script src="http://localhost:8080/bootstrap_js.js"></script>
+		<script src="http://localhost:8080/bootstrap_css.js"></script>
   </head>
   <body>
 		{% include 'includes/_navigation_bar.html' %}
 		{% from 'includes/_formhelpers.html' import render_field %}
 		<div class="container">
-			<br>
 			{% include 'includes/_messages.html' %}
 	    {% block content %}{% endblock %}
 		</div>

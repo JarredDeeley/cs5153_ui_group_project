@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
-from app import app, config
+from app import app, config, db
 from app.models import *
 from app.forms import *
 
@@ -150,11 +150,12 @@ class AdminRoleView(FlaskView):
             flash(u'You have successfully %s the %s role!!' % (msg, form.name.data), 'success')
             return render_template('admin/roles/index.html', title='Roles',
                                     roles=Role.query.all())
+
     def delete(self, id):
         role = Role.query.get(id)
         name = role.name
-        app.db.session.delete(role)
-        app.db.session.commit()
+        db.session.delete(role)
+        db.session.commit()
         flash(u'You have successfully deleted the %s role!!' % (name), 'success')
         return render_template('admin/roles/index.html', title='Roles',
                                 roles=Role.query.all())
