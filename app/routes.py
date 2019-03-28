@@ -213,7 +213,7 @@ class AdminLessonView(AdminTopicView):
             form.save(True) if msg == 'created' else form.save(False)
             flash(u'You have successfully %s the %s Lesson!!' % (msg, form.name.data), 'success')
             return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(form.iden.data),
-                                    tid=tid, back_url=redirect_back('AdminTopicView:index'))
+                                    back_url=redirect_back('AdminTopicView:index'))
 
     def new(self, tid):
         return render_template('admin/topics/lessons/new.html', form=LessonForm(), msg='created',
@@ -231,7 +231,7 @@ class AdminLessonView(AdminTopicView):
 
     def show(self, id, tid):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
-                                tid=tid, back_url=redirect_back('AdminTopicView:index'))
+                                back_url=redirect_back('AdminTopicView:index'))
 
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
@@ -244,18 +244,25 @@ class AdminUserView(FlaskView):
             if users.has_next else None
         prev_url = url_for('AdminUserView:index', page=users.prev_num) \
             if users.has_prev else None
-        return render_template('admin/users/index.html', title='Users',
-                                users=users.items, next_url=next_url,
-                                prev_url=prev_url)
+        return render_template('admin/users/index.html', title='Users', users=users.items,
+                                next_url=next_url, prev_url=prev_url,
+                                back_url=redirect_back('AdminUserView:index'))
 
     def post(self):
         form = UserForm()
         if form.validate_on_submit():
             form.save()
             flash(u'You have successfully udated user %s' % (form.username.data), 'success')
-            return render_template('admin/users/index.html', title='Users',
-                                    users=User.query.all())
-
+            # I did this like this becuase I didn't want flask-classy to define another route
+            page = request.args.get('page', 1, type=int)
+            users = User.query.paginate(page, 10, False)
+            next_url = url_for('AdminUserView:index', page=users.next_num) \
+                if users.has_next else None
+            prev_url = url_for('AdminUserView:index', page=users.prev_num) \
+                if users.has_prev else None
+            return render_template('admin/users/index.html', title='Users', users=users.items,
+                                    next_url=next_url, prev_url=prev_url,
+                                    back_url=redirect_back('AdminUserView:index'))
     def edit(self, id):
         # This allows for form data to be filled
         user = User.query.get(id)
