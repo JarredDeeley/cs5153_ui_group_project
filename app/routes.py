@@ -7,6 +7,10 @@ from app import app, config
 from app.models import *
 from app.forms import *
 
+# If you would like to view all routes in route file type
+# yarn routes or flask list-routes
+# Still working on making the output look better
+
 # For user authorizations
 def requires_role(role):
     def wrapper(f):
@@ -19,17 +23,29 @@ def requires_role(role):
         return wrapped
     return wrapper
 
+# This is used via the vairable back_url
+# This allows users to go back to the page
+# They were on before
+def redirect_back(default):
+    return request.args.get('next') or \
+           request.referrer or \
+           url_for(default)
+
 # Simple solution to flask-classy issue but not secure
 # We aren't starting a company it doesn't matter
 @app.before_request
 def load_user():
     g.user = current_user
 
+# Route for uploading to files to the uploads folder
+# in project root uploads
 @app.route('/uploads/<filename>')
 def uploaded_files(filename):
     path = app.config['UPLOADED_PATH']
     return send_from_directory(path, filename)
 
+# Route on pulic facing internet
+# To upload files
 @app.route('/upload', methods=['POST'])
 def upload():
     import os
@@ -41,12 +57,20 @@ def upload():
     url = url_for('uploaded_files', filename=f.filename)
     return upload_success(url=url)
 
-# Where actual routes start
+######################################
+######################################
+##                                  ##
+##        Where Routes start        ##
+##                                  ##
+######################################
+######################################
+
 @app.route('/')
 @app.route('/index')
 def index():
     return render_template('index.html', title='Home')
 
+# Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
@@ -65,6 +89,7 @@ def login():
         return redirect(next_page)
     return render_template('login.html', title='Sign In', form=form)
 
+# Register route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -76,6 +101,7 @@ def register():
         return redirect(url_for('login'))
     return render_template('register.html', title='Register', form=form)
 
+# Logout
 @app.route("/logout")
 @login_required
 def logout():
@@ -83,7 +109,14 @@ def logout():
     flash(u'Successfully Signed out', 'success')
     return redirect(url_for('index'))
 
-# Admin interface class's
+######################################
+######################################
+##                                  ##
+##    Start of Admin users Routes   ##
+##                                  ##
+######################################
+######################################
+
 class AdminView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
@@ -102,27 +135,29 @@ class AdminRoleView(FlaskView):
     def post(self, msg):
         form = RoleForm()
         if form.validate_on_submit():
-            msg = msg.split(",")
             # if a new entry create else update
-            form.save(msg[1],True) if msg[0] == 'created' else form.save(msg[1],False)
-            flash(u'You have successfully %s the %s role!!' % (msg[0], form.name.data), 'success')
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s the %s role!!' % (msg, form.name.data), 'success')
             return render_template('admin/roles/index.html', title='Roles',
-                                roles=Role.query.all())
+                                    roles=Role.query.all())
 
     def new(self):
-        return render_template('admin/roles/new.html', form=RoleForm())
+        return render_template('admin/roles/new.html', form=RoleForm(), msg='created',
+                                back_url=redirect_back('AdminRoleView:index'))
 
     def edit(self, id):
-        return render_template('admin/roles/edit.html', form=RoleForm(),
-                                role=Role.query.get(id), msg="updated,"+str(id))
+        return render_template('admin/roles/edit.html', form=RoleForm(), id=id,
+                                role=Role.query.get(id), msg='updated',
+                                back_url=redirect_back('AdminRoleView:index'))
 
     def show(self, id):
-        return render_template('admin/roles/show.html', role=Role.query.get(id))
+        return render_template('admin/roles/show.html', role=Role.query.get(id),
+                                back_url=redirect_back('AdminRoleView:index'))
 
 class AdminTopicView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
-    # Route for all roles
+    # Route for all topics
     def index(self):
         return render_template('admin/topics/index.html', title='Topics',
                                 topics=Topic.query.all())
@@ -130,27 +165,56 @@ class AdminTopicView(FlaskView):
     def post(self, msg):
         form = TopicForm()
         if form.validate_on_submit():
-            msg = msg.split(",")
             # if a new entry create else update
-            form.save(msg[0],True) if msg[0] == 'created' else form.save(msg[1],False)
-            flash(u'You have successfully %s the %s topic!!' % (msg[0], form.name.data), 'success')
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s the %s topic!!' % (msg, form.name.data), 'success')
             return render_template('admin/topics/index.html', title='Topics',
-                                topics=Topic.query.all())
+                                    topics=Topic.query.all())
 
     def new(self):
-        return render_template('admin/topics/new.html', form=TopicForm())
+        return render_template('admin/topics/new.html', form=TopicForm(), msg='created',
+                                back_url=redirect_back('AdminTopicView:index'))
 
     def edit(self, id):
         return render_template('admin/topics/edit.html', form=TopicForm(),
-                                topic=Topic.query.get(id), msg="updated,"+str(id))
+                                topic=Topic.query.get(id), msg='updated',
+                                back_url=redirect_back('AdminTopicView:index'))
 
     def show(self, id):
-        return render_template('admin/topics/show.html', topic=Topic.query.get(id))
+        return render_template('admin/topics/show.html', topic=Topic.query.get(id),
+                                back_url=redirect_back('AdminTopicView:index'))
+
+# Inheriting from AdminTopicView is just for naming conventions
+# This allows for nested resources in flask
+class AdminLessonView(AdminTopicView):
+    decorators = [login_required, requires_role('admin')]
+
+    def post(self, msg, tid):
+        form = LessonForm()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s the %s Lesson!!' % (msg[0], form.name.data), 'success')
+            return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
+                                    tid=tid, back_url=redirect_back('AdminTopicView:index'))
+
+    def new(self, tid):
+        return render_template('admin/topics/lessons/new.html', form=LessonForm(), msg='created',
+                                tid=tid, back_url=redirect_back('AdminTopicView:index'))
+
+    def edit(self, id, tid):
+        return render_template('admin/topics/lessons/edit.html', form=LessonForm(),
+                                lesson=Lesson.query.get(id), msg='updated', tid=tid,
+                                back_url=redirect_back('AdminTopicView:index'))
+
+    def show(self, id, tid):
+        return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
+                                tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
-    # Route for users all
+    # Route for all users
     def index(self):
         page = request.args.get('page', 1, type=int)
         users = User.query.paginate(page, 10, False)
@@ -158,19 +222,48 @@ class AdminUserView(FlaskView):
             if users.has_next else None
         prev_url = url_for('AdminUserView:index', page=users.prev_num) \
             if users.has_prev else None
-        return render_template('admin/users/index.html', title='Users', users=users.items,
-                                next_url=next_url, prev_url=prev_url)
+        return render_template('admin/users/index.html', title='Users',
+                                users=users.items, next_url=next_url,
+                                prev_url=prev_url)
 
-    def post(self, id):
+    def post(self):
         form = UserForm()
         if form.validate_on_submit():
-            form.save(id)
+            form.save()
             flash(u'You have successfully udated user %s' % (form.username.data), 'success')
             return render_template('admin/users/index.html', title='Users',
-                                users=User.query.all())
+                                    users=User.query.all())
 
     def edit(self, id):
-        return render_template('admin/users/edit.html', form=UserForm(), user=User.query.get(id))
+        return render_template('admin/users/edit.html', form=UserForm(), user=User.query.get(id),
+                                 back_url=redirect_back('AdminUserView:index'))
 
     def show(self, id):
-        return render_template('admin/users/show.html', user=User.query.get(id))
+        return render_template('admin/users/show.html', user=User.query.get(id),
+                                back_url=redirect_back('AdminUserView:index'))
+
+######################################
+######################################
+##                                  ##
+## Start of Non Admin users Routes  ##
+##                                  ##
+######################################
+######################################
+
+class TopicView(FlaskView):
+    # Route for all topics
+    def index(self):
+        return render_template('topics/index.html', title='Topics',
+                                topics=Topic.query.all())
+
+    def show(self, id):
+        return render_template('topics/show.html', topic=Topic.query.get(id),
+                                back_url=redirect_back('TopicView:index'))
+
+# Inheriting from TopicView is just for naming conventions
+# This allows for nested resources in flask
+class LessonView(TopicView):
+
+    def show(self, id, tid):
+        return render_template('topics/lessons/show.html', lesson=Lesson.query.get(id),
+                                tid=tid, back_url=redirect_back('TopicView:index'))

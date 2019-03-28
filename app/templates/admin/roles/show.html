@@ -6,6 +6,6 @@
   <p>Description: {{ role.description }}</p>
   <p>
     <a href="{{ url_for('AdminRoleView:edit',id=role.id) }}" class="button btn btn-warning btn-lg">Edit</a>
-    <a href="{{ request.referrer }}" class="button btn btn-danger btn-lg">Back</a>
+    <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
   </p>
 {% endblock %}
