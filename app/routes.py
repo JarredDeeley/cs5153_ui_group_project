@@ -66,15 +66,24 @@ def upload():
 ######################################
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', title='Home')
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash(u'Invalid username or password','danger')
+            return redirect(url_for('index'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        flash(u'Successfully Signed in!!!', 'success')
+        return redirect(next_page)
+    return render_template('index.html', title='Home', form=form)
 
-# Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -87,18 +96,18 @@ def login():
             next_page = url_for('index')
         flash(u'Successfully Signed in!!!', 'success')
         return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('index.html', title='Home', form=form)
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
+#    if current_user.is_authenticated:
+#        return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         form.save()
         flash(u'Congratulations, you are now a registered user!', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('index'))
     return render_template('register.html', title='Register', form=form)
 
 # Logout
@@ -107,6 +116,7 @@ def register():
 def logout():
     logout_user()
     flash(u'Successfully Signed out', 'success')
+#    return render_template('index.html', title='Home', form=form)
     return redirect(url_for('index'))
 
 ######################################
@@ -287,11 +297,11 @@ class AdminUserView(FlaskView):
 class TopicView(FlaskView):
     # Route for all topics
     def index(self):
-        return render_template('topics/index.html', title='Topics',
+        return render_template('non_admin/topics/index.html', title='Topics',
                                 topics=Topic.query.all())
 
     def show(self, id):
-        return render_template('topics/show.html', topic=Topic.query.get(id),
+        return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
                                 back_url=redirect_back('TopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
@@ -299,5 +309,12 @@ class TopicView(FlaskView):
 class LessonView(TopicView):
 
     def show(self, id, tid):
-        return render_template('topics/lessons/show.html', lesson=Lesson.query.get(id),
+        return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
+
+
+class UserView(FlaskView):
+    decorators = [login_required]
+
+    def settings(self):
+        return render_template('non_admin/users/settings.html', title='Settings')
