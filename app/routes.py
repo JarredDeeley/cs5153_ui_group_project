@@ -133,6 +133,14 @@ class AdminRoleView(FlaskView):
                                 roles=Role.query.all())
 
     def post(self, msg):
+        if (msg.isdigit()): # this if for delete
+            role = Role.query.get(msg)
+            name = role.name
+            db.session.delete(role)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s role!!' % (name), 'success')
+            return render_template('admin/roles/index.html', title='Roles',
+                                    roles=Role.query.all())
         form = RoleForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -140,15 +148,6 @@ class AdminRoleView(FlaskView):
             flash(u'You have successfully %s the %s role!!' % (msg, form.name.data), 'success')
             return render_template('admin/roles/index.html', title='Roles',
                                     roles=Role.query.all())
-
-    def delete(self, id):
-        role = Role.query.get(id)
-        name = role.name
-        db.session.delete(role)
-        db.session.commit()
-        flash(u'You have successfully deleted the %s role!!' % (name), 'success')
-        return render_template('admin/roles/index.html', title='Roles',
-                                roles=Role.query.all())
 
     def new(self):
         return render_template('admin/roles/new.html', form=RoleForm(), msg='created',
@@ -176,6 +175,16 @@ class AdminTopicView(FlaskView):
                                 topics=Topic.query.all())
 
     def post(self, msg):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            topic = Topic.query.get(msg)
+            name = topic.name
+            topic.lessons.delete()
+            db.session.delete(topic)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s topic!!' % (name), 'success')
+            return render_template('admin/topics/index.html', title='Topics',
+                                    topics=Topic.query.all())
         form = TopicForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -208,6 +217,15 @@ class AdminLessonView(AdminTopicView):
     decorators = [login_required, requires_role('admin')]
 
     def post(self, msg, tid):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            lesson = Lesson.query.get(msg)
+            name = lesson.name
+            db.session.delete(lesson)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s lesson!!' % (name), 'success')
+            return render_template('admin/topics/show.html', topic=Topic.query.get(tid),
+                                    back_url=redirect_back('AdminTopicView:index'))
         form = LessonForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -288,11 +306,11 @@ class AdminUserView(FlaskView):
 class TopicView(FlaskView):
     # Route for all topics
     def index(self):
-        return render_template('topics/index.html', title='Topics',
+        return render_template('non_admin/topics/index.html', title='Topics',
                                 topics=Topic.query.all())
 
     def show(self, id):
-        return render_template('topics/show.html', topic=Topic.query.get(id),
+        return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
                                 back_url=redirect_back('TopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
@@ -300,5 +318,11 @@ class TopicView(FlaskView):
 class LessonView(TopicView):
 
     def show(self, id, tid):
-        return render_template('topics/lessons/show.html', lesson=Lesson.query.get(id),
+        return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
+
+class UserView(FlaskView):
+    decorators = [login_required]
+
+    def settings(self):
+        return render_template('non_admin/users/settings.html', title='Settings')

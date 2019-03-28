@@ -17,11 +17,10 @@
       <td><a href="{{ url_for('AdminRoleView:show',id=role.id) }}" class="button btn btn-primary btn-md btn-block">show</a></td>
       <td><a href="{{ url_for('AdminRoleView:edit',id=role.id) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
       <td>
-      <form action="{{ url_for('AdminRoleView:delete',id=role.id) }}" method="post">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-        <input type="hidden" name="_method" value="DELETE">
-        <input type="submit" value="remove" class="button btn btn-danger btn-md btn-block">
-      </form>
+        <form action="{{ url_for('AdminRoleView:post',msg=role.id) }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="submit" value="remove" class="button btn btn-danger btn-md btn-block">
+        </form>
       </td>
     </tr>
     {% endfor %}
