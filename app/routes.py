@@ -85,6 +85,12 @@ def topics():
     if current_user.is_authenticated:
         return render_template('topics.html', title='Topics')
 
+@app.route("/settings")
+@login_required
+def settings():
+    if current_user.is_authenticated:
+        return render_template('settings.html', title='Settings')
+
 # Admin interface class's
 class AdminView(FlaskView):
     decorators = [login_required, requires_role('admin')]
