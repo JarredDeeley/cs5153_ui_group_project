@@ -22,9 +22,15 @@ source venv/bin/activate
 flask db upgrade   # To do database migrations
 yarn              # To install node packages
 yarn seed         # To populate database
-yarn s/npm s      # To start flask server
 ```
-
+**Start flask & webpack for HMR**
+```bash
+yarn ds/npm ds    # To start flask and webpack server
+```
+**Start flask & webpack for static compile**
+```bash
+yarn s/npm s    # To start flask and webpack server
+```
 **For Interactive Shell**
 ```bash
 flask shell

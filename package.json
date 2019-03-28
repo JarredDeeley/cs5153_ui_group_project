@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "s": "bash run.sh start",
+    "ds": "bash run.sh start-dev",
     "shell": "flask shell",
     "seed": "flask db-seed",
     "build": "bash run.sh build",
@@ -35,6 +36,7 @@
     "webpack": "^4.29.5"
   },
   "devDependencies": {
-    "webpack-cli": "^3.2.3"
+    "webpack-cli": "^3.2.3",
+    "webpack-dev-server": "^3.2.1"
   }
 }
