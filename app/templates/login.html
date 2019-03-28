@@ -7,12 +7,10 @@
 		{{ form.csrf_token }}
     {{ form.hidden_tag() }}
     <p>
-			{{ form.username.label }}<br>
-      {{ form.username(size=32) }}<br>
+      {{ render_field(form.username, class='form-control') }}<br>
     </p>
     <p>
-			{{ form.password.label }}<br>
-      {{ form.password(size=32) }}<br>
+      {{ render_field(form.password, class='form-control') }}<br>
     </p>
     <p>{{ form.remember_me() }} {{ form.remember_me.label }}</p>
 		<input id="submit" name="submit" type="submit" value="Sign In" class="button btn btn-success btn-lg">

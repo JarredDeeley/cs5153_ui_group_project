@@ -17,7 +17,7 @@ def requires_role(role):
         @wraps(f)
         def wrapped(*args, **kwargs):
             if not current_user.has_role(role):
-                flash(u'You are not authorized to view that','error')
+                flash(u'You are not authorized to view that','danger')
                 return render_template('index.html', title='Home')
             return f(*args, **kwargs)
         return wrapped
@@ -79,7 +79,7 @@ def login():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            flash(u'Invalid username or password','error')
+            flash(u'Invalid username or password','danger')
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
@@ -140,15 +140,27 @@ class AdminRoleView(FlaskView):
             flash(u'You have successfully %s the %s role!!' % (msg, form.name.data), 'success')
             return render_template('admin/roles/index.html', title='Roles',
                                     roles=Role.query.all())
+    def delete(self, id):
+        role = Role.query.get(id)
+        name = role.name
+        app.db.session.delete(role)
+        app.db.session.commit()
+        flash(u'You have successfully deleted the %s role!!' % (name), 'success')
+        return render_template('admin/roles/index.html', title='Roles',
+                                roles=Role.query.all())
 
     def new(self):
         return render_template('admin/roles/new.html', form=RoleForm(), msg='created',
                                 back_url=redirect_back('AdminRoleView:index'))
 
     def edit(self, id):
-        return render_template('admin/roles/edit.html', form=RoleForm(), id=id,
-                                role=Role.query.get(id), msg='updated',
-                                back_url=redirect_back('AdminRoleView:index'))
+        # This allows for form data to be filled
+        role = Role.query.get(id)
+        form = RoleForm()
+        form.name.data = role.name
+        form.description.data = role.description
+        return render_template('admin/roles/edit.html', form=form, msg='updated',
+                                id=id, back_url=redirect_back('AdminRoleView:index'))
 
     def show(self, id):
         return render_template('admin/roles/show.html', role=Role.query.get(id),
@@ -176,9 +188,14 @@ class AdminTopicView(FlaskView):
                                 back_url=redirect_back('AdminTopicView:index'))
 
     def edit(self, id):
-        return render_template('admin/topics/edit.html', form=TopicForm(),
-                                topic=Topic.query.get(id), msg='updated',
-                                back_url=redirect_back('AdminTopicView:index'))
+        # This allows for form data to be filled
+        topic = Topic.query.get(id)
+        form = TopicForm()
+        form.name.data = topic.name
+        form.description.data = topic.description
+        form.text.data = topic.text
+        return render_template('admin/topics/edit.html', form=form, msg='updated',
+                                id=id, back_url=redirect_back('AdminTopicView:index'))
 
     def show(self, id):
         return render_template('admin/topics/show.html', topic=Topic.query.get(id),
@@ -203,9 +220,14 @@ class AdminLessonView(AdminTopicView):
                                 tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
     def edit(self, id, tid):
-        return render_template('admin/topics/lessons/edit.html', form=LessonForm(),
-                                lesson=Lesson.query.get(id), msg='updated', tid=tid,
-                                back_url=redirect_back('AdminTopicView:index'))
+        # This allows for form data to be filled
+        lesson = Lesson.query.get(id)
+        form = LessonForm()
+        form.name.data = lesson.name
+        form.description.data = lesson.description
+        form.text.data = lesson.text
+        return render_template('admin/topics/lessons/edit.html', form=form, msg='updated', id=id,
+                                tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
     def show(self, id, tid):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
@@ -235,7 +257,12 @@ class AdminUserView(FlaskView):
                                     users=User.query.all())
 
     def edit(self, id):
-        return render_template('admin/users/edit.html', form=UserForm(), user=User.query.get(id),
+        # This allows for form data to be filled
+        user = User.query.get(id)
+        form = UserForm()
+        form.username.data = user.username
+        form.email.data = user.email
+        return render_template('admin/users/edit.html', form=form, id=id,
                                  back_url=redirect_back('AdminUserView:index'))
 
     def show(self, id):
