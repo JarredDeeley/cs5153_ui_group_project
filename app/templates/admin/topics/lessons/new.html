@@ -6,16 +6,13 @@
     {{ form.csrf_token }}
     {{ form.tidf(value=tid) }}
     <p>
-      {{ form.name.label }}<br>
-      {{ form.name(size=32) }}<br>
+      {{ render_field(form.name, class='form-control') }}<br>
     </p>
     <p>
-      {{ form.description.label }}<br>
-      {{ form.description(size=32) }}<br>
+      {{ render_field(form.description, class='form-control') }}<br>
     </p>
     <p>
-      {{ form.text.label }}<br>
-      {{ form.text }}
+      {{ render_field(form.text, class='form-control') }}
     </p>
     <p>
       <input id="submit" name="submit" type="submit" value="create lesson" class="button btn btn-success btn-lg">
