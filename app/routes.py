@@ -119,6 +119,11 @@ def logout():
 #    return render_template('index.html', title='Home', form=form)
     return redirect(url_for('index'))
 
+#FAQs
+@app.route('/faq')
+def faq():
+    return render_template('faq.html', title='FAQs')
+
 ######################################
 ######################################
 ##                                  ##

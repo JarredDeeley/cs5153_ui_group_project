@@ -6,6 +6,7 @@ require('../../templates/non_admin/topics/index.html')
 require('../../templates/non_admin/topics/show.html')
 require('../../templates/non_admin/topics/lessons/show.html')
 require('../../templates/non_admin/users/settings.html')
+require('../../templates/faq.html')
 
 // Admin
 require('../../templates/admin/dashboard.html')
