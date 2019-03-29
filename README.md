@@ -17,7 +17,6 @@ pip install -r requirements.txt
 
 **Using virtual environment**
 ```bash
-#inside app folder
 source venv/bin/activate
 flask db upgrade   # To do database migrations
 yarn              # To install node packages
