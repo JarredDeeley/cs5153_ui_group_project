@@ -4,6 +4,9 @@
 # Ignore all pycache folders
 **/__pycache__
 
+# ignore all .pyc files
+**/*.pyc
+
 # Ignore static node_modules folder
 /node_modules
 /public
