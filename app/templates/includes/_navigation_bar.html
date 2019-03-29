@@ -1,11 +1,9 @@
 <div class="navbar navbar-dark bg-dark shadow-sm">
-  <div class="container d-flex justify-content-between">
-    <a href="#" class="navbar-brand d-flex align-items-center">
-      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" aria-hidden="true" class="mr-2" viewBox="0 0 24 24" focusable="false"></svg>
-      {% if current_user.is_authenticated and current_user.has_role('admin') %}
+    <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center">
+	{% if current_user.is_authenticated and current_user.has_role('admin') %}
       <strong>Admin</strong>
       {% else %}
-      <h3><strong>Sanitized Code</strong></h3>
+      <strong>Sanitized Code</strong>
       {% endif %}
     </a>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
@@ -40,5 +38,4 @@
         </ul>
       </div>
     </nav>
-  </div>
 </div>
