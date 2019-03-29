@@ -31,6 +31,7 @@ routes.AdminLessonView.register(app,route_base='/admin/topics/<tid>/lessons')
 routes.TopicView.register(app,route_base='/topics')
 routes.LessonView.register(app,route_base='/topics/<tid>/lessons')
 routes.UserView.register(app,route_base='/account')
+routes.CommentView.register(app,route_base='/topics/<tid>/lessons/<lid>/comment')
 
 # For Flask Shell
 @app.shell_context_processor

@@ -257,6 +257,7 @@ class AdminUserView(FlaskView):
 
     # Route for all users
     def index(self):
+        # I did this like this becuase I didn't want flask-classy to define another route
         page = request.args.get('page', 1, type=int)
         users = User.query.paginate(page, 10, False)
         next_url = url_for('AdminUserView:index', page=users.next_num) \
@@ -320,6 +321,35 @@ class LessonView(TopicView):
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
+
+# Inheriting from TopicView is just for naming conventions
+# This allows for triple nested resources in flask
+class CommentView(TopicView):
+    decorators = [login_required]
+
+    def new(self, tid, lid):
+        return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                tid=tid, back_url=redirect_back('TopicView:index'))
+
+    def post(self, tid, lid):
+        return 0
+
+    def edit(self, tid, lid):
+        return 0
+
+# Inheriting from TopicView is just for naming conventions
+# This allows for triple nested resources in flask
+class ReplyView(TopicView):
+    decorators = [login_required]
+
+    def new(self):
+        return 0
+
+    def post(self):
+        return 0
+
+    def edit(self):
+        return 0
 
 class UserView(FlaskView):
     decorators = [login_required]

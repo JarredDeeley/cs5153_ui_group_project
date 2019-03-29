@@ -1,8 +1,8 @@
-"""lessons table
+"""lesson table
 
-Revision ID: d61ee13bf7c5
+Revision ID: a52726cf41c3
 Revises: 3b88b0965236
-Create Date: 2019-03-27 16:41:09.067056
+Create Date: 2019-03-28 23:30:30.061523
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'd61ee13bf7c5'
+revision = 'a52726cf41c3'
 down_revision = '3b88b0965236'
 branch_labels = None
 depends_on = None
@@ -24,6 +24,7 @@ def upgrade():
     sa.Column('description', sa.String(length=64), nullable=True),
     sa.Column('text', sa.Text(), nullable=True),
     sa.Column('topic_id', sa.Integer(), nullable=True),
+    sa.Column('created_at', sa.TIMESTAMP(), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
     sa.ForeignKeyConstraint(['topic_id'], ['topic.id'], ),
     sa.PrimaryKeyConstraint('id')
     )

@@ -12,7 +12,7 @@
     <tr>
       <td>{{ topic.name }}</td>
       <td>{{ topic.description }}</td>
-      <td><a href="{{ url_for('TopicView:show',id=topic.id) }}" class="button btn btn-primary btn-md btn-block">show</a></td>
+      <td><a href="{{ url_for('TopicView:show',id=topic.id) }}" class="btn btn-primary btn-md btn-block">show</a></td>
     </tr>
     {% endfor %}
   </table>
