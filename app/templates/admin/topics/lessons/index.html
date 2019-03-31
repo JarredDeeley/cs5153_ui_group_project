@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="center">Lessons All</h1>
+  <table class="table table-hover">
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for lesson in lessons %}
+    <tr>
+      <td>{{ lesson.name }}</td>
+      <td>{{ lesson.description }}</td>
+      <td><a href="{{ url_for('AdminLessonView:show',id=lesson.id,tid=tid) }}" class="button btn btn-primary btn-md btn-block">show</a></td>
+      <td><a href="{{ url_for('AdminLessonView:edit',id=lesson.id,tid=tid) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ url_for('AdminLessonView:new',tid=tid) }}" class="button btn btn-block btn-success btn-lg">New Lesson</a>
+{% endblock %}

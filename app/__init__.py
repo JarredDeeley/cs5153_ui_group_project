@@ -26,6 +26,7 @@ routes.AdminUserView.register(app,route_base='/admin/users')
 routes.AdminRoleView.register(app,route_base='/admin/roles')
 routes.AdminTopicView.register(app,route_base='/admin/topics')
 routes.AdminLessonView.register(app,route_base='/admin/topics/<tid>/lessons')
+routes.AdminCommentView.register(app,route_base='/admin/topics/<tid>/lessons/<lid>/comments')
 
 # Regular users routes registration
 routes.TopicView.register(app,route_base='/topics')
@@ -36,7 +37,7 @@ routes.UserView.register(app,route_base='/account')
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': models.User, 'Role': models.Role,
-            'Topic': models.Topic, 'Lesson': models.Lesson }
+            'Topic': models.Topic, 'Lesson': models.Lesson, 'Comment': models.Comment }
 
 # For database population/seeding
 @app.cli.command()

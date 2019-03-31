@@ -56,15 +56,26 @@ class LessonForm(FlaskForm):
             lesson.text = self.text.data
         db.session.commit()
 
-# comments form in templates/admin/topics/show.html
+# Comments form in templates/non-admin/lessons/edit|new.html
 class CommentForm(FlaskForm):
     text = CKEditorField('Text', validators=[DataRequired()])
+    lidf = HiddenField('Lesson ID', validators=[DataRequired()])
     tidf = HiddenField('Topic ID', validators=[DataRequired()])
+    # This is only used for edit. So dont add valiations
+    iden = HiddenField('Comment ID')
+
     # The save method first check if on new or edit page
     # based off that deterime whether to create or update
-    def save(self):
-            comment = Comment(text=self.text.data,topic_id=self.tidf.data)
+    def save(self, new):
+        if new:
+            comment = Comment(text=self.text.data,lesson_id=self.lidf.data,topic_id=self.tidf.data)
             db.session.add(comment)
+        else:
+            comment = Comment.query.get(self.iden.data)
+            comment.lesson_id = self.lidf.data
+            comment.topic_id = self.tidf.data
+            comment.text = self.text.data
+        db.session.commit()
 
 # Roles form in folder templates/admin/roles/new|edit.html
 class RoleForm(FlaskForm):

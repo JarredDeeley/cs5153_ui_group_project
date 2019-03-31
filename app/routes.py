@@ -223,6 +223,10 @@ class AdminTopicView(FlaskView):
 class AdminLessonView(AdminTopicView):
     decorators = [login_required, requires_role('admin')]
 
+    # Route for all topics
+    def index(self,tid):
+        return render_template('admin/topics/lessons/index.html', title='Lessons',tid=tid,
+                                lessons=Lesson.query.all(tid))
     def post(self, msg, tid):
         form = LessonForm()
         if form.validate_on_submit():
@@ -249,6 +253,37 @@ class AdminLessonView(AdminTopicView):
     def show(self, id, tid):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 back_url=redirect_back('AdminTopicView:index'))
+
+# Inheriting from AdminLessonView is just for naming conventions
+# This allows for nested resources in flask
+class AdminCommentView(AdminLessonView):
+    decorators = [login_required, requires_role('admin')]
+
+    def post(self, msg, lid, tid):
+        form = CommentForm()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s the %s comment!!' % (msg, form.text.data), 'success')
+            return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(form.iden.data),lid=lid,tid=tid,
+                                    back_url=redirect_back('AdminLessonView:index'))
+
+    def new(self, lid, tid):
+        return render_template('admin/topics/lessons/comments/new.html', form=CommentForm(), msg='created',
+                                lid=lid,tid=tid, back_url=redirect_back('AdminLessonView:index'))
+
+    def edit(self, id, lid, tid):
+        # This allows for form data to be filled
+        comment = Comment.query.get(id)
+        form = CommentForm()
+        form.text.data = comment.text
+        return render_template('admin/topics/lessons/comments/edit.html', form=form, msg='updated', id=id,
+                                lid=lid,tid=tid, back_url=redirect_back('AdminLessonView:index'))
+
+    def show(self, id, lid, tid):
+        return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
+                                back_url=redirect_back('AdminLessonView:index'))
+
 
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
@@ -304,23 +339,13 @@ class AdminUserView(FlaskView):
 class TopicView(FlaskView):
     # Route for all topics
     def index(self):
-        form = CommentForm()
         return render_template('non_admin/topics/index.html', title='Topics',
-                                topics=Topic.query.all(),form=form)
+                                topics=Topic.query.all())
 
     def show(self, id):
-	form = CommentForm()
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                back_url=redirect_back('TopicView:index'),form=form)
+                                back_url=redirect_back('TopicView:index'))
     
-    def comment(self,id,msg):
-        form = CommentForm()
-        if form.validate_on_submit():
-            # if a new entry create else update
-            form.save(True) if msg == 'created' else form.save(False)
-            flash(u'You have successfully added comment!', 'success')
-            return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                back_url=redirect_back('TopicView:index'),form=form)
 
 
 # Inheriting from TopicView is just for naming conventions
@@ -330,6 +355,8 @@ class LessonView(TopicView):
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
+
+
 
 class UserView(FlaskView):
     decorators = [login_required]
