@@ -1,11 +1,23 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 class="center">Lesson</h1>
-  <p>Name: {{ lesson.name }}</p>
-  <p>Description: {{ lesson.description }}</p>
-  <p>{{ lesson.text|safe }}</p>
-  <p>
-    <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
-  </p>
+<div class="container-fluid" id="main">
+  <div class="row row-offcanvas row-offcanvas-left">
+    <div class="col-md-3 col-lg-2 sidebar-offcanvas" id="sidebar" role="navigation">
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item"><a class="nav-link" href="">Topic</a></li>
+        <li class="nav-item"><a class="nav-link" href="">lesson</a></li>
+
+      </ul>
+    </div>
+
+    <div class="col-md-9 col-lg-10 main">
+      <h1 class="center">Lesson: {{ lesson.name }}</h1>
+      <p>{{ lesson.text|safe }}</p>
+      <p>
+        <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+      </p>
+    </div>
+  </div>
+</div>
 {% endblock %}
