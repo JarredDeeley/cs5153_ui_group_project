@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block page_content %}
+
+    <article>
+        <h6>
+            Post by <a href="{{ url_for('stream', username=post.user.username)}}"> 
+                        {{ post.user.name}}
+                    </a>
+            <span style="float:right; clear:right; ">at {{ post.timestamp.strftime('%d-%m-%Y %H:%M')}}</span>
+
+        </h6>
+
+        <div class='post'>
+
+            <div style="width: 100%; display: inline-block;">
+                <h4> 
+                    <a href="{{ url_for('singlepost', post=post.id) }}"> 
+{{ post.content}} </a> 
+                </h4>
+
+            </div>
+
+        </div>
+        <hr>
+    </article>
+
+    <!-- comment section -->
+
+    <form class="form form-horizontal col-md-12" method="post" role="form">
+
+    {{ form.hidden_tag() }}  <!-- Renders hidden fields inside of a hidden <div>. -->
+    {% for field in form %} <!-- it will help us loop through the elements in our forms.py -->
+        {{ render_field(field) }} <!-- We used the maco we created to render the feild -->
+    {% endfor %}
+    <br>
+    <br>
+        <button type='submit' class="btn btn-primary" id='submit'>Submit</button>
+</form>
+
+{% endblock %}
