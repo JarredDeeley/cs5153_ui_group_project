@@ -78,6 +78,18 @@ class Lesson(db.Model):
     def __repr__(self):
         return '<Lesson {}>'.format(self.name, self.description, self.created_at)
 
+# Comments model and related db columns
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, index=True, unique=True)
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    # What gets printed in flask shell or yarn shell when
+    # querying comments
+    def __repr__(self):
+        return '<Comment {}>'.format(self.topic_id)
+
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))

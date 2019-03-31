@@ -82,7 +82,7 @@ def index():
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -123,6 +123,7 @@ def logout():
 @app.route('/faq')
 def faq():
     return render_template('faq.html', title='FAQs')
+
 
 ######################################
 ######################################
@@ -303,12 +304,24 @@ class AdminUserView(FlaskView):
 class TopicView(FlaskView):
     # Route for all topics
     def index(self):
+        form = CommentForm()
         return render_template('non_admin/topics/index.html', title='Topics',
-                                topics=Topic.query.all())
+                                topics=Topic.query.all(),form=form)
 
     def show(self, id):
+	form = CommentForm()
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                back_url=redirect_back('TopicView:index'))
+                                back_url=redirect_back('TopicView:index'),form=form)
+    
+    def comment(self,id,msg):
+        form = CommentForm()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully added comment!', 'success')
+            return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
+                                back_url=redirect_back('TopicView:index'),form=form)
+
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for nested resources in flask
@@ -318,9 +331,9 @@ class LessonView(TopicView):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
 
-
 class UserView(FlaskView):
     decorators = [login_required]
 
     def settings(self):
         return render_template('non_admin/users/settings.html', title='Settings')
+

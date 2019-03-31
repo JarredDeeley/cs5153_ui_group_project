@@ -56,6 +56,16 @@ class LessonForm(FlaskForm):
             lesson.text = self.text.data
         db.session.commit()
 
+# comments form in templates/admin/topics/show.html
+class CommentForm(FlaskForm):
+    text = CKEditorField('Text', validators=[DataRequired()])
+    tidf = HiddenField('Topic ID', validators=[DataRequired()])
+    # The save method first check if on new or edit page
+    # based off that deterime whether to create or update
+    def save(self):
+            comment = Comment(text=self.text.data,topic_id=self.tidf.data)
+            db.session.add(comment)
+
 # Roles form in folder templates/admin/roles/new|edit.html
 class RoleForm(FlaskForm):
     name = StringField('Name', validators=[DataRequired()])
@@ -93,6 +103,7 @@ class UserForm(FlaskForm):
 
 # Register Form in templates/register.html
 class RegistrationForm(FlaskForm):
+    remember_me = BooleanField('Remember Me')
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
