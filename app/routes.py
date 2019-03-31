@@ -124,6 +124,23 @@ def logout():
 def faq():
     return render_template('faq.html', title='FAQs')
 
+@app.route('/post')
+@app.route('/post/<int:postid>')
+def singlepost(postid=None):
+    postNumber = request.args.get('post', postid)
+    post = models.Post.select().where(models.Post.id == postNumber).get()  #<-- the post instance you need
+
+    form = forms.CommentForm()
+    if form.validate_on_submit():
+        models.Comment.create(content=form.content.data.strip(), 
+                              post=post,  #<-- This is where you apply it.
+                              user=g.user._get_current_object())
+        flash("Comment posted!", 'alert-success')
+        return redirect(url_for('singlepost'))
+
+    return render_template("singlepost.html", post=post, form=form)
+
+
 ######################################
 ######################################
 ##                                  ##
