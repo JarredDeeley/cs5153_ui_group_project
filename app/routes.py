@@ -257,7 +257,7 @@ class AdminLessonView(AdminTopicView):
 # Inheriting from AdminLessonView is just for naming conventions
 # This allows for nested resources in flask
 class AdminCommentView(AdminLessonView):
-    decorators = [login_required, requires_role('admin')]
+    decorators = [login_required]
 
     def post(self, msg, lid, tid):
         form = CommentForm()
@@ -355,6 +355,15 @@ class LessonView(TopicView):
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
+
+
+# Inheriting from Lesson is just for naming conventions
+# This allows for nested resources in flask
+class CommentView(LessonView):
+
+    def show(self, id, lid, tid):
+        return render_template('non_admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),
+                                lid=lid,tid=tid, back_url=redirect_back('TopicView:index'))
 
 
 

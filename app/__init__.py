@@ -31,6 +31,7 @@ routes.AdminCommentView.register(app,route_base='/admin/topics/<tid>/lessons/<li
 # Regular users routes registration
 routes.TopicView.register(app,route_base='/topics')
 routes.LessonView.register(app,route_base='/topics/<tid>/lessons')
+routes.CommentView.register(app,route_base='/topics/<tid>/lessons/<lid>/comments')
 routes.UserView.register(app,route_base='/account')
 
 # For Flask Shell

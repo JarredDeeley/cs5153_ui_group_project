@@ -7,11 +7,20 @@
   <p>{{ lesson.text|safe }}</p>
   <p>
     <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
-  </p>  
-<h1 class="center">Add Comment</h1>
-  <form action="" method="post">
-    <p>
-      <input id="submit" name="submit" type="submit" value="Add Comment" class="button btn btn-success btn-lg">
-    </p>
-  </form>
+  </p>
+<h3 class="center">Comments</h3>
+  <table class="table table-hover">
+    <tr>
+      <th>Text</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for comment in lesson.comments %}
+    <tr>
+      <td>{{ comment.text }}</td>
+      <td><a href="{{ url_for('AdminCommentView:edit',id=comment.id,lid=lesson.id,tid=tid) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ url_for('AdminCommentView:new',lid=lesson.id, tid=tid) }}" class="button btn btn-block btn-success btn-lg">Add Comment</a>
 {% endblock %}
