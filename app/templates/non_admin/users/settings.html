@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block content %}
+{% if current_user.is_authenticated %}
+
+<div class="container">
+	<h2 class="display-5">{{ current_user.username }} : Account Settings</h2>
+</div>
+
+	<div class="jumbotron">
+		<h2 class="display-5">
+			<h2>Personal information: </h2>
+			<table>
+				<tr>
+					<td>
+						<h5>E-mail address:</h5>
+					</td>
+					<td>
+						<h5>{{ current_user.email }}</h5>
+					</td>
+				</tr>
+			</table>
+</div>
+
+{% endif %}
+{% endblock %}

@@ -1,12 +1,15 @@
 const webpack = require('webpack');
+const nodeEnv = process.env.NODE_ENV !== 'production' ? 'development' : 'production';
 
 const config = {
+  mode: nodeEnv,
   // This is 100% not the best way to do this!!!
   entry: {
     app_js:  __dirname + '/app/assets/js/application.js',
     app_css:  __dirname + '/app/assets/css/application.css',
     bootstrap_css: __dirname + '/app/vendor/css/bootstrap.min.css',
     bootstrap_js: __dirname + '/app/vendor/js/bootstrap.min.js',
+    watch_js: __dirname + '/app/assets/js/watch.js',
   },
   output: {
     filename: "[name].js",
@@ -24,6 +27,12 @@ const config = {
         use: [
           'style-loader',
           'css-loader'
+        ]
+      },
+      {
+        test: /\.html$/,
+        use: [
+          "raw-loader"
         ]
       },
       {

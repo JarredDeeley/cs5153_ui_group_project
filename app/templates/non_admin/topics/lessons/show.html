@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container-fluid" id="main">
+  <div class="row row-offcanvas row-offcanvas-left">
+    <!--
+    <div class="col-md-3 col-lg-2 sidebar-offcanvas" id="sidebar" role="navigation">
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item"><a class="nav-link" href=""></a></li>
+        {% for topic in topics %}
+        <li class="nav-item"><a class="nav-link" href="">lesson</a></li>
+        {% endfor %}
+
+      </ul>
+    </div>
+    -->
+
+    <div class="col-md-9 col-lg-10 main">
+      <h1 class="center">Lesson: {{ lesson.name }}</h1>
+      <p>{{ lesson.text|safe }}</p>
+      <p>
+        <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
