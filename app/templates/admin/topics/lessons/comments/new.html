@@ -5,12 +5,11 @@
   <form action="{{ url_for('AdminCommentView:post',msg=msg,lid=lid,tid=tid) }}" method="post">
     {{ form.csrf_token }}
     {{ form.lidf(value=lid) }}
-    <p>
+    {{ form.tidf(value=tid) }}
       {{ render_field(form.text, class='form-control') }}
     </p>
     <p>
       <input id="submit" name="submit" type="submit" value="create comment" class="button btn btn-success btn-lg">
-      <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
     </p>
   </form>
   {{ ckeditor.load() }}

@@ -266,11 +266,11 @@ class AdminCommentView(AdminLessonView):
             form.save(True) if msg == 'created' else form.save(False)
             flash(u'You have successfully %s the %s comment!!' % (msg, form.text.data), 'success')
             return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(form.iden.data),lid=lid,tid=tid,
-                                    back_url=redirect_back('AdminLessonView:index'))
+                                    back_url=redirect_back('AdminTopicView:index'))
 
     def new(self, lid, tid):
         return render_template('admin/topics/lessons/comments/new.html', form=CommentForm(), msg='created',
-                                lid=lid,tid=tid, back_url=redirect_back('AdminLessonView:index'))
+                                lid=lid,tid=tid)
 
     def edit(self, id, lid, tid):
         # This allows for form data to be filled
@@ -278,11 +278,11 @@ class AdminCommentView(AdminLessonView):
         form = CommentForm()
         form.text.data = comment.text
         return render_template('admin/topics/lessons/comments/edit.html', form=form, msg='updated', id=id,
-                                lid=lid,tid=tid, back_url=redirect_back('AdminLessonView:index'))
+                                lid=lid,tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
     def show(self, id, lid, tid):
         return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
-                                back_url=redirect_back('AdminLessonView:index'))
+                                back_url=redirect_back('AdminTopicView:index'))
 
 
 class AdminUserView(FlaskView):
