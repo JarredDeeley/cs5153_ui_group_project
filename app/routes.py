@@ -82,7 +82,7 @@ def index():
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET','POST'])
 def login():
     form = LoginForm()
     if form.validate_on_submit():
@@ -122,23 +122,8 @@ def logout():
 #FAQs
 @app.route('/faq')
 def faq():
-    return render_template('faq.html', title='FAQs')
-
-@app.route('/post')
-@app.route('/post/<int:postid>')
-def singlepost(postid=None):
-    postNumber = request.args.get('post', postid)
-    post = models.Post.select().where(models.Post.id == postNumber).get()  #<-- the post instance you need
-
-    form = forms.CommentForm()
-    if form.validate_on_submit():
-        models.Comment.create(content=form.content.data.strip(), 
-                              post=post,  #<-- This is where you apply it.
-                              user=g.user._get_current_object())
-        flash("Comment posted!", 'alert-success')
-        return redirect(url_for('singlepost'))
-
-    return render_template("singlepost.html", post=post, form=form)
+    form = LoginForm()
+    return render_template('faq.html', title='FAQs', form=form)
 
 
 ######################################
@@ -266,6 +251,16 @@ class AdminLessonView(AdminTopicView):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 back_url=redirect_back('AdminTopicView:index'))
 
+# Inheriting from AdminLessonView is just for naming conventions
+# This allows for nested resources in flask
+class AdminCommentView(AdminLessonView):
+    decorators = [login_required, requires_role('admin')]
+
+    def show(self, id, lid, tid):
+        return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
+                                back_url=redirect_back('AdminTopicView:index'))
+
+
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
@@ -334,6 +329,37 @@ class LessonView(TopicView):
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, back_url=redirect_back('TopicView:index'))
+
+
+# Inheriting from Lesson is just for naming conventions
+# This allows for nested resources in flask
+class CommentView(LessonView):
+
+    def post(self, msg, lid, tid):
+        form = CommentForm()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s a comment!!' % (msg), 'success')
+            return render_template('non_admin/topics/lessons/comments/show.html', comment=Comment.query.get(form.iden.data),lid=lid,tid=tid,
+                                    back_url=redirect_back('AdminTopicView:index'))
+
+    def new(self, lid, tid):
+        return render_template('non_admin/topics/lessons/comments/new.html', form=CommentForm(), msg='created',
+                                lid=lid,tid=tid)
+
+    def edit(self, id, lid, tid):
+        # This allows for form data to be filled
+        comment = Comment.query.get(id)
+        form = CommentForm()
+        form.text.data = comment.text
+        return render_template('non_admin/topics/lessons/comments/edit.html', form=form, msg='updated', id=id,
+                                lid=lid,tid=tid, back_url=redirect_back('AdminTopicView:index'))
+
+    def show(self, id, lid, tid):
+        return render_template('non_admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),
+                                lid=lid,tid=tid, back_url=redirect_back('TopicView:index'))
+
 
 
 class UserView(FlaskView):

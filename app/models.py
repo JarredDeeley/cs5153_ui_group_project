@@ -72,11 +72,25 @@ class Lesson(db.Model):
     description = db.Column(db.String(64), index=True, unique=True)
     text = db.Column(db.Text, index=True, unique=True)
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+    # A Lesson can have many comments
+    comments = db.relationship('Comment', backref='comment', lazy='dynamic')
 
     # What gets printed in flask shell or yarn shell when
     # querying Lessons
     def __repr__(self):
         return '<Lesson {}>'.format(self.name, self.description, self.created_at)
+
+# Comments model and related db columns
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, index=True, unique=True)
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
+    topic_id =db.Column(db.Integer, db.ForeignKey('topic.id'))
+
+    # What gets printed in flask shell or yarn shell when
+    # querying comments
+    def __repr__(self):
+        return '<Comment {}>'.format(self.text, self.created_at)
 
 @login.user_loader
 def load_user(id):

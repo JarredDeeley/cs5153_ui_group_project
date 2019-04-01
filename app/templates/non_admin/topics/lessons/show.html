@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container-fluid" id="main">
-  <div class="row row-offcanvas row-offcanvas-left">
-    <!--
-    <div class="col-md-3 col-lg-2 sidebar-offcanvas" id="sidebar" role="navigation">
-      <ul class="nav nav-pills flex-column">
-        <li class="nav-item"><a class="nav-link" href=""></a></li>
-        {% for topic in topics %}
-        <li class="nav-item"><a class="nav-link" href="">lesson</a></li>
-        {% endfor %}
-
-      </ul>
-    </div>
-    -->
-
-    <div class="col-md-9 col-lg-10 main">
-      <h1 class="center">Lesson: {{ lesson.name }}</h1>
-      <p>{{ lesson.text|safe }}</p>
-      <p>
-        <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
-      </p>
-    </div>
-  </div>
-</div>
+  <h1 class="center">Lesson</h1>
+  <p>Name: {{ lesson.name }}</p>
+  <p>Description: {{ lesson.description }}</p>
+  <p>{{ lesson.text|safe }}</p>
+  <p>
+    <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+  </p>
+<h3 class="center">Comments</h3>
+  <table class="table table-hover">
+    <tr>
+      <th>Text</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for comment in lesson.comments %}
+    <tr>
+      <td>{{ comment.text|safe }}</td>
+      <td><a href="{{ url_for('CommentView:edit',id=comment.id,lid=lesson.id,tid=tid) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
+      <td></td>
+    </tr>
+    {% endfor %}
+  </table>
+  <a href="{{ url_for('CommentView:new',lid=lesson.id, tid=tid) }}" class="button btn btn-block btn-success btn-lg">Add Comment</a>
 {% endblock %}

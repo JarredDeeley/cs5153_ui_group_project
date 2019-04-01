@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="center">Comment</h1>
+  <p>Text: {{ comment.text|safe }}</p>
+  <p>
+    <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+  </p>
+{% endblock %}
