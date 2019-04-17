@@ -242,6 +242,15 @@ class AdminLessonView(AdminTopicView):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 back_url=redirect_back('AdminTopicView:index'))
 
+# Inheriting from AdminLessonView is just for naming conventions
+# This allows for nested resources in flask
+class AdminCommentView(AdminLessonView):
+    decorators = [login_required, requires_role('admin')]
+
+    def show(self, id, lid, tid):
+        return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
+                                back_url=redirect_back('AdminTopicView:index'))
+
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
@@ -310,22 +319,39 @@ class LessonView(TopicView):
 
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
-                                tid=tid, back_url=redirect_back('TopicView:index'))
+                                tid=tid, lid=id, form=CommentForm(), msg='created',
+                                back_url=redirect_back('TopicView:index'))
 
-# Inheriting from TopicView is just for naming conventions
-# This allows for triple nested resources in flask
-class CommentView(TopicView):
-    decorators = [login_required]
+# Inheriting from Lesson is just for naming conventions
+# This allows for nested resources in flask
+class CommentView(LessonView):
 
-    def new(self, tid, lid):
-        return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
-                                tid=tid, back_url=redirect_back('TopicView:index'))
+    def post(self, msg, lid, tid):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            comment = Comment.query.get(msg)
+            db.session.delete(comment)
+            db.session.commit()
+            flash(u'You have successfully deleted your comment!!', 'success')
+            return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                    lid=lid, tid=tid, form=CommentForm(),
+                                    back_url=redirect_back('TopicView:index'))
+        form = CommentForm()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s a comment!!' % (msg), 'success')
+            return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                    lid=lid, tid=tid, form=CommentForm(),
+                                    back_url=redirect_back('TopicView:index'))
 
-    def post(self, tid, lid):
-        return 0
-
-    def edit(self, tid, lid):
-        return 0
+    def edit(self, id, lid, tid):
+        # This allows for form data to be filled
+        comment = Comment.query.get(id)
+        form = CommentForm()
+        form.text.data = comment.text
+        return render_template('non_admin/topics/lessons/comments/edit.html', form=form, msg='updated', id=id,
+                                lid=lid,tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for triple nested resources in flask

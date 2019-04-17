@@ -1,3 +1,7 @@
+//includes
+require('../../templates/includes/_navigation_bar.html')
+
+// Non admin
 require('../../templates/base.html')
 require('../../templates/index.html')
 require('../../templates/login.html')

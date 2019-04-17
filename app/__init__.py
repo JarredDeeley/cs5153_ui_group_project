@@ -26,12 +26,13 @@ routes.AdminUserView.register(app,route_base='/admin/users')
 routes.AdminRoleView.register(app,route_base='/admin/roles')
 routes.AdminTopicView.register(app,route_base='/admin/topics')
 routes.AdminLessonView.register(app,route_base='/admin/topics/<tid>/lessons')
+routes.AdminCommentView.register(app,route_base='/admin/topics/<tid>/lessons/<lid>/comments')
 
 # Regular users routes registration
 routes.TopicView.register(app,route_base='/topics')
 routes.LessonView.register(app,route_base='/topics/<tid>/lessons')
+routes.CommentView.register(app,route_base='/topics/<tid>/lessons/<lid>/comments')
 routes.UserView.register(app,route_base='/account')
-routes.CommentView.register(app,route_base='/topics/<tid>/lessons/<lid>/comment')
 
 # For Flask Shell
 @app.shell_context_processor
