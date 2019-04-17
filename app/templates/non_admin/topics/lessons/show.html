@@ -1,43 +1,27 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1 class="center">Lesson</h1>
-  <p>Name: {{ lesson.name }}</p>
-  <p>Description: {{ lesson.description }}</p>
-  <p>{{ lesson.text|safe }}</p>
-  <p>
-    <a href="{{ back_url }}" class="btn btn-danger btn-lg">Back</a>
-  </p>
-  <h1 class="center">Comments All</h1>
-  <table class="table table-hover">
-    <tr>
-      <th>User Name</th>
-      <th>What the said</th>
-      <th></th>
-      <th></th>
-    </tr>
-    {% if current_user.is_authenticated %}
-    <p>
-      <a href="{{ url_for('CommentView:new', tid=tid, lid=lid) }}" class="btn-success btn-lg">Create commment</a>
-    </p>
-    {% endif %}
-    {% for comment in lesson.comments %}
-    <tr>
-      <td>{{ comment.user.name }}</td>
-      <td>{{ comment.text|safe }}</td>
-      {% if current_user.is_authenticated %}
-        <td><a href="{{ url_for('CommentView:edit', tid=tid, lid=lid) }}" class="btn btn-primary btn-md btn-block">edit</a></td>
-        <td>
-          <form action="{{ url_for('CommentView:post') }}" method="post">
-            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-            <input type="submit" value="remove" class="btn btn-danger btn-md btn-block">
-          </form>
-        </td>
-      {% else %}
-        <td></td>
-        <td></td>
-      {% endif %}
-    </tr>
-    {% endfor %}
-  </table>
+<div class="container-fluid" id="main">
+  <div class="row row-offcanvas row-offcanvas-left">
+    <!--
+    <div class="col-md-3 col-lg-2 sidebar-offcanvas" id="sidebar" role="navigation">
+      <ul class="nav nav-pills flex-column">
+        <li class="nav-item"><a class="nav-link" href=""></a></li>
+        {% for topic in topics %}
+        <li class="nav-item"><a class="nav-link" href="">lesson</a></li>
+        {% endfor %}
+
+      </ul>
+    </div>
+    -->
+
+    <div class="col-md-9 col-lg-10 main">
+      <h1 class="center">Lesson: {{ lesson.name }}</h1>
+      <p>{{ lesson.text|safe }}</p>
+      <p>
+        <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+      </p>
+    </div>
+  </div>
+</div>
 {% endblock %}

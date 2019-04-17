@@ -8,7 +8,6 @@
       <th>Description</th>
       <th></th>
       <th></th>
-      <th></th>
     </tr>
     {% for role in roles %}
     <tr>
@@ -16,12 +15,6 @@
       <td>{{ role.description }}</td>
       <td><a href="{{ url_for('AdminRoleView:show',id=role.id) }}" class="btn btn-primary btn-md btn-block">show</a></td>
       <td><a href="{{ url_for('AdminRoleView:edit',id=role.id) }}" class="btn btn-warning btn-md btn-block">edit</a></td>
-      <td>
-        <form action="{{ url_for('AdminRoleView:post',msg=role.id) }}" method="post">
-          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-          <input type="submit" value="remove" class="btn btn-danger btn-md btn-block">
-        </form>
-      </td>
     </tr>
     {% endfor %}
   </table>

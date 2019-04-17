@@ -16,7 +16,7 @@ csrf = CSRFProtect(app)
 login.login_view = 'login'
 
 # Register add routes to make managing application easier
-from app import routes, models
+from app import routes, models, topic_lesson_content_seed
 from faker import Faker
 from werkzeug.security import generate_password_hash
 
@@ -44,6 +44,9 @@ def make_shell_context():
 def db_seed():
     faker = Faker()
     db.create_all()
+
+    # Create topic and lesson content
+    topic_lesson_content_seed.seed_topic_and_lesson_content(db)
 
     # Create admin role
     if db.session.query(models.Role.id).filter_by(name='admin').scalar() is None:

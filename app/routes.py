@@ -66,15 +66,24 @@ def upload():
 ######################################
 
 @app.route('/')
-@app.route('/index')
+@app.route('/index', methods=['GET', 'POST'])
 def index():
-    return render_template('index.html', title='Home')
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash(u'Invalid username or password','danger')
+            return redirect(url_for('index'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        flash(u'Successfully Signed in!!!', 'success')
+        return redirect(next_page)
+    return render_template('index.html', title='Home', form=form)
 
-# Login route
 @app.route('/login', methods=['GET', 'POST'])
 def login():
-    if current_user.is_authenticated:
-        return redirect(url_for('index'))
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
@@ -87,7 +96,7 @@ def login():
             next_page = url_for('index')
         flash(u'Successfully Signed in!!!', 'success')
         return redirect(next_page)
-    return render_template('login.html', title='Sign In', form=form)
+    return render_template('index.html', title='Home', form=form)
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
@@ -98,7 +107,7 @@ def register():
     if form.validate_on_submit():
         form.save()
         flash(u'Congratulations, you are now a registered user!', 'success')
-        return redirect(url_for('login'))
+        return redirect(url_for('index'))
     return render_template('register.html', title='Register', form=form)
 
 # Logout
@@ -107,7 +116,12 @@ def register():
 def logout():
     logout_user()
     flash(u'Successfully Signed out', 'success')
-    return redirect(url_for('index'))
+    return render_template('index.html', title='Home', form=form)
+
+#FAQs
+@app.route('/faq')
+def faq():
+    return render_template('faq.html', title='FAQs')
 
 ######################################
 ######################################
@@ -133,14 +147,6 @@ class AdminRoleView(FlaskView):
                                 roles=Role.query.all())
 
     def post(self, msg):
-        if (msg.isdigit()): # this if for delete
-            role = Role.query.get(msg)
-            name = role.name
-            db.session.delete(role)
-            db.session.commit()
-            flash(u'You have successfully deleted the %s role!!' % (name), 'success')
-            return render_template('admin/roles/index.html', title='Roles',
-                                    roles=Role.query.all())
         form = RoleForm()
         if form.validate_on_submit():
             # if a new entry create else update
