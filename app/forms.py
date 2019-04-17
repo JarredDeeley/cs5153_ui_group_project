@@ -72,7 +72,7 @@ class CommentForm(FlaskForm):
             comment = Comment(text=self.text.data,lesson_id=self.lidf.data,user_id=self.uidf.data)
             db.session.add(comment)
         else:
-            comment = Comment.query.get(self.iden.data)
+            comment = Comment.query.get(self.iden)
             comment.lesson_id = self.lidf.data
             comment.user_id = self.uidf.data
             comment.text = self.text.data

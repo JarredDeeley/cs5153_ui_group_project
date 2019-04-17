@@ -326,7 +326,7 @@ class LessonView(TopicView):
 # This allows for nested resources in flask
 class CommentView(LessonView):
 
-    def post(self, msg, lid, tid):
+    def post(self, msg, id, lid, tid):
         # have to cheese this to make work
         if (msg.isdigit()): # this if for delete
             comment = Comment.query.get(msg)
@@ -338,20 +338,14 @@ class CommentView(LessonView):
                                     back_url=redirect_back('TopicView:index'))
         form = CommentForm()
         if form.validate_on_submit():
+            if id != 'new':
+                form.iden = int(id)
             # if a new entry create else update
             form.save(True) if msg == 'created' else form.save(False)
-            flash(u'You have successfully %s a comment!!' % (msg), 'success')
+            flash(u'You have successfully %s your comment!!' % (msg), 'success')
             return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
                                     lid=lid, tid=tid, form=CommentForm(),
                                     back_url=redirect_back('TopicView:index'))
-
-    def edit(self, id, lid, tid):
-        # This allows for form data to be filled
-        comment = Comment.query.get(id)
-        form = CommentForm()
-        form.text.data = comment.text
-        return render_template('non_admin/topics/lessons/comments/edit.html', form=form, msg='updated', id=id,
-                                lid=lid,tid=tid, back_url=redirect_back('AdminTopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for triple nested resources in flask
