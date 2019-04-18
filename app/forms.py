@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField
+from wtforms import StringField, PasswordField, BooleanField, SubmitField, HiddenField, TextAreaField
 from wtforms.validators import ValidationError, DataRequired, Email, EqualTo
 from flask_ckeditor import CKEditorField
 from app.models import *
@@ -58,9 +58,10 @@ class LessonForm(FlaskForm):
 
 # Comments form in templates/non-admin/lessons/edit|new.html
 class CommentForm(FlaskForm):
-    text = CKEditorField('Text', validators=[DataRequired()])
+    text = TextAreaField('Text', validators=[DataRequired()])
     lidf = HiddenField('Lesson ID', validators=[DataRequired()])
-    tidf = HiddenField('Topic ID', validators=[DataRequired()])
+    uidf = HiddenField('User ID', validators=[DataRequired()])
+
     # This is only used for edit. So dont add valiations
     iden = HiddenField('Comment ID')
 
@@ -68,14 +69,15 @@ class CommentForm(FlaskForm):
     # based off that deterime whether to create or update
     def save(self, new):
         if new:
-            comment = Comment(text=self.text.data,lesson_id=self.lidf.data,topic_id=self.tidf.data)
+            comment = Comment(text=self.text.data,lesson_id=self.lidf.data,user_id=self.uidf.data)
             db.session.add(comment)
         else:
-            comment = Comment.query.get(self.iden.data)
+            comment = Comment.query.get(self.iden)
             comment.lesson_id = self.lidf.data
-            comment.topic_id = self.tidf.data
+            comment.user_id = self.uidf.data
             comment.text = self.text.data
         db.session.commit()
+
 
 # Roles form in folder templates/admin/roles/new|edit.html
 class RoleForm(FlaskForm):

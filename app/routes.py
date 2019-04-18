@@ -101,8 +101,8 @@ def login():
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-#    if current_user.is_authenticated:
-#        return redirect(url_for('index'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         form.save()
@@ -116,14 +116,12 @@ def register():
 def logout():
     logout_user()
     flash(u'Successfully Signed out', 'success')
-#    return render_template('index.html', title='Home', form=form)
-    return redirect(url_for('index'))
+    return render_template('index.html', title='Home', form=LoginForm())
 
 #FAQs
 @app.route('/faq')
 def faq():
-    form = LoginForm()
-    return render_template('faq.html', title='FAQs', form=form)
+    return render_template('faq.html', title='FAQs', form=LoginForm())
 
 
 ######################################
@@ -158,15 +156,6 @@ class AdminRoleView(FlaskView):
             return render_template('admin/roles/index.html', title='Roles',
                                     roles=Role.query.all())
 
-    def delete(self, id):
-        role = Role.query.get(id)
-        name = role.name
-        db.session.delete(role)
-        db.session.commit()
-        flash(u'You have successfully deleted the %s role!!' % (name), 'success')
-        return render_template('admin/roles/index.html', title='Roles',
-                                roles=Role.query.all())
-
     def new(self):
         return render_template('admin/roles/new.html', form=RoleForm(), msg='created',
                                 back_url=redirect_back('AdminRoleView:index'))
@@ -193,6 +182,16 @@ class AdminTopicView(FlaskView):
                                 topics=Topic.query.all())
 
     def post(self, msg):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            topic = Topic.query.get(msg)
+            name = topic.name
+            topic.lessons.delete()
+            db.session.delete(topic)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s topic!!' % (name), 'success')
+            return render_template('admin/topics/index.html', title='Topics',
+                                    topics=Topic.query.all())
         form = TopicForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -225,6 +224,15 @@ class AdminLessonView(AdminTopicView):
     decorators = [login_required, requires_role('admin')]
 
     def post(self, msg, tid):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            lesson = Lesson.query.get(msg)
+            name = lesson.name
+            db.session.delete(lesson)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s lesson!!' % (name), 'success')
+            return render_template('admin/topics/show.html', topic=Topic.query.get(tid),
+                                    back_url=redirect_back('AdminTopicView:index'))
         form = LessonForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -251,21 +259,12 @@ class AdminLessonView(AdminTopicView):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 back_url=redirect_back('AdminTopicView:index'))
 
-# Inheriting from AdminLessonView is just for naming conventions
-# This allows for nested resources in flask
-class AdminCommentView(AdminLessonView):
-    decorators = [login_required, requires_role('admin')]
-
-    def show(self, id, lid, tid):
-        return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
-                                back_url=redirect_back('AdminTopicView:index'))
-
-
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
     # Route for all users
     def index(self):
+        # I did this like this becuase I didn't want flask-classy to define another route
         page = request.args.get('page', 1, type=int)
         users = User.query.paginate(page, 10, False)
         next_url = url_for('AdminUserView:index', page=users.next_num) \
@@ -328,39 +327,47 @@ class LessonView(TopicView):
 
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
-                                tid=tid, back_url=redirect_back('TopicView:index'))
-
+                                tid=tid, lid=id, form=CommentForm(), msg='created',
+                                back_url=redirect_back('TopicView:index'))
 
 # Inheriting from Lesson is just for naming conventions
 # This allows for nested resources in flask
 class CommentView(LessonView):
 
-    def post(self, msg, lid, tid):
+    def post(self, msg, id, lid, tid):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            comment = Comment.query.get(msg)
+            db.session.delete(comment)
+            db.session.commit()
+            flash(u'You have successfully deleted your comment!!', 'success')
+            return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                    lid=lid, tid=tid, form=CommentForm(),
+                                    back_url=redirect_back('TopicView:index'))
         form = CommentForm()
         if form.validate_on_submit():
+            if id != 'new':
+                form.iden = int(id)
             # if a new entry create else update
             form.save(True) if msg == 'created' else form.save(False)
-            flash(u'You have successfully %s a comment!!' % (msg), 'success')
-            return render_template('non_admin/topics/lessons/comments/show.html', comment=Comment.query.get(form.iden.data),lid=lid,tid=tid,
-                                    back_url=redirect_back('AdminTopicView:index'))
+            flash(u'You have successfully %s your comment!!' % (msg), 'success')
+            return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                    lid=lid, tid=tid, form=CommentForm(),
+                                    back_url=redirect_back('TopicView:index'))
 
-    def new(self, lid, tid):
-        return render_template('non_admin/topics/lessons/comments/new.html', form=CommentForm(), msg='created',
-                                lid=lid,tid=tid)
+# Inheriting from TopicView is just for naming conventions
+# This allows for triple nested resources in flask
+class ReplyView(TopicView):
+    decorators = [login_required]
 
-    def edit(self, id, lid, tid):
-        # This allows for form data to be filled
-        comment = Comment.query.get(id)
-        form = CommentForm()
-        form.text.data = comment.text
-        return render_template('non_admin/topics/lessons/comments/edit.html', form=form, msg='updated', id=id,
-                                lid=lid,tid=tid, back_url=redirect_back('AdminTopicView:index'))
+    def new(self):
+        return 0
 
-    def show(self, id, lid, tid):
-        return render_template('non_admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),
-                                lid=lid,tid=tid, back_url=redirect_back('TopicView:index'))
+    def post(self):
+        return 0
 
-
+    def edit(self):
+        return 0
 
 class UserView(FlaskView):
     decorators = [login_required]

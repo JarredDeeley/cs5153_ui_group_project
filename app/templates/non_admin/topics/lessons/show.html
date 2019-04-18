@@ -8,7 +8,13 @@
   <p>
     <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
   </p>
-<h3 class="center">Comments</h3>
+  <h3 class="center">Comments</h3>
+  {% if current_user.is_authenticated %}
+    <button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#CleanCodeModalCenter">
+      Add Comment
+    </button>
+  {% endif %}
+  <br></br>
   <table class="table table-hover">
     <tr>
       <th>Text</th>
@@ -18,10 +24,70 @@
     {% for comment in lesson.comments %}
     <tr>
       <td>{{ comment.text|safe }}</td>
-      <td><a href="{{ url_for('CommentView:edit',id=comment.id,lid=lesson.id,tid=tid) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
-      <td></td>
+      {% if current_user.id == comment.user_id %}
+        <td>
+          <button type="button" class="btn btn-warning btn-md btn-block" data-toggle="modal" data-target="#CleanCodeModalEditCenter">edit</button>
+          <!-- Modal Edit This created unnessary html but who cares!! -->
+          <div class="modal fade" id="CleanCodeModalEditCenter" tabindex="-1" role="dialog" aria-labelledby="CleanCodeModalEditCenterTitle" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title">Edit Comment</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <form action="{{ url_for('CommentView:post',msg='updated',id=comment.id,lid=lid,tid=tid) }}" method="post">
+                  <div class="modal-body">
+                    {{ form.csrf_token }}
+                    {{ form.iden(value=comment.id) }}
+                    {{ form.lidf(value=lid) }}
+                    {{ form.uidf(value=current_user.id) }}
+                    {{ render_field(form.text, class='form-control') }}
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <input id="submit" name="submit" type="submit" value="update comment" class="button btn btn-success">
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </td>
+        <td>
+          <form action="{{ url_for('CommentView:post',msg=comment.id,id=comment.id,lid=lid,tid=tid) }}" method="post">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="submit" value="remove" class="btn btn-danger btn-md btn-block">
+          </form>
+        </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </table>
-  <a href="{{ url_for('CommentView:new',lid=lesson.id, tid=tid) }}" class="button btn btn-block btn-success btn-lg">Add Comment</a>
+
+  <!-- Modal -->
+  <div class="modal fade" id="CleanCodeModalCenter" tabindex="-1" role="dialog" aria-labelledby="CleanCodeModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Comment</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <form action="{{ url_for('CommentView:post',msg=msg,id='new',lid=lid,tid=tid) }}" method="post">
+          <div class="modal-body">
+            {{ form.csrf_token }}
+            {{ form.lidf(value=lid) }}
+            {{ form.uidf(value=current_user.id) }}
+            {{ render_field(form.text, class='form-control') }}
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <input id="submit" name="submit" type="submit" value="add comment" class="button btn btn-success">
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 {% endblock %}

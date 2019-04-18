@@ -8,15 +8,22 @@
       <th>Description</th>
       <th></th>
       <th></th>
+      <th></th>
     </tr>
     {% for topic in topics %}
     <tr>
       <td>{{ topic.name }}</td>
       <td>{{ topic.description }}</td>
-      <td><a href="{{ url_for('AdminTopicView:show',id=topic.id) }}" class="button btn btn-primary btn-md btn-block">show</a></td>
-      <td><a href="{{ url_for('AdminTopicView:edit',id=topic.id) }}" class="button btn btn-warning btn-md btn-block">edit</a></td>
+      <td><a href="{{ url_for('AdminTopicView:show',id=topic.id) }}" class="btn btn-primary btn-md btn-block">show</a></td>
+      <td><a href="{{ url_for('AdminTopicView:edit',id=topic.id) }}" class="btn btn-warning btn-md btn-block">edit</a></td>
+      <td>
+        <form action="{{ url_for('AdminTopicView:post',msg=topic.id) }}" method="post">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <input type="submit" value="remove" class="btn btn-danger btn-md btn-block">
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </table>
-  <a href="{{ url_for('AdminTopicView:new') }}" class="button btn btn-block btn-success btn-lg">New Topic</a>
+  <a href="{{ url_for('AdminTopicView:new') }}" class="btn btn-block btn-success btn-lg">New Topic</a>
 {% endblock %}
