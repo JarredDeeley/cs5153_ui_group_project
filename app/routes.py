@@ -242,15 +242,6 @@ class AdminLessonView(AdminTopicView):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 back_url=redirect_back('AdminTopicView:index'))
 
-# Inheriting from AdminLessonView is just for naming conventions
-# This allows for nested resources in flask
-class AdminCommentView(AdminLessonView):
-    decorators = [login_required, requires_role('admin')]
-
-    def show(self, id, lid, tid):
-        return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
-                                back_url=redirect_back('AdminTopicView:index'))
-
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
