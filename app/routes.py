@@ -82,27 +82,11 @@ def index():
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
 
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash(u'Invalid username or password','danger')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
-        flash(u'Successfully Signed in!!!', 'success')
-        return redirect(next_page)
-    return render_template('index.html', title='Home', form=form)
-
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
-#    if current_user.is_authenticated:
-#        return redirect(url_for('index'))
+    if current_user.is_authenticated:
+        return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         form.save()
@@ -116,30 +100,12 @@ def register():
 def logout():
     logout_user()
     flash(u'Successfully Signed out', 'success')
-#    return render_template('index.html', title='Home', form=form)
-    return redirect(url_for('index'))
+    return render_template('index.html', title='Home', form=LoginForm())
 
 #FAQs
 @app.route('/faq')
 def faq():
     return render_template('faq.html', title='FAQs')
-
-@app.route('/post')
-@app.route('/post/<int:postid>')
-def singlepost(postid=None):
-    postNumber = request.args.get('post', postid)
-    post = models.Post.select().where(models.Post.id == postNumber).get()  #<-- the post instance you need
-
-    form = forms.CommentForm()
-    if form.validate_on_submit():
-        models.Comment.create(content=form.content.data.strip(), 
-                              post=post,  #<-- This is where you apply it.
-                              user=g.user._get_current_object())
-        flash("Comment posted!", 'alert-success')
-        return redirect(url_for('singlepost'))
-
-    return render_template("singlepost.html", post=post, form=form)
-
 
 ######################################
 ######################################
@@ -173,15 +139,6 @@ class AdminRoleView(FlaskView):
             return render_template('admin/roles/index.html', title='Roles',
                                     roles=Role.query.all())
 
-    def delete(self, id):
-        role = Role.query.get(id)
-        name = role.name
-        db.session.delete(role)
-        db.session.commit()
-        flash(u'You have successfully deleted the %s role!!' % (name), 'success')
-        return render_template('admin/roles/index.html', title='Roles',
-                                roles=Role.query.all())
-
     def new(self):
         return render_template('admin/roles/new.html', form=RoleForm(), msg='created',
                                 back_url=redirect_back('AdminRoleView:index'))
@@ -208,6 +165,16 @@ class AdminTopicView(FlaskView):
                                 topics=Topic.query.all())
 
     def post(self, msg):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            topic = Topic.query.get(msg)
+            name = topic.name
+            topic.lessons.delete()
+            db.session.delete(topic)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s topic!!' % (name), 'success')
+            return render_template('admin/topics/index.html', title='Topics',
+                                    topics=Topic.query.all())
         form = TopicForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -240,6 +207,15 @@ class AdminLessonView(AdminTopicView):
     decorators = [login_required, requires_role('admin')]
 
     def post(self, msg, tid):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            lesson = Lesson.query.get(msg)
+            name = lesson.name
+            db.session.delete(lesson)
+            db.session.commit()
+            flash(u'You have successfully deleted the %s lesson!!' % (name), 'success')
+            return render_template('admin/topics/show.html', topic=Topic.query.get(tid),
+                                    back_url=redirect_back('AdminTopicView:index'))
         form = LessonForm()
         if form.validate_on_submit():
             # if a new entry create else update
@@ -266,11 +242,21 @@ class AdminLessonView(AdminTopicView):
         return render_template('admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 back_url=redirect_back('AdminTopicView:index'))
 
+# Inheriting from AdminLessonView is just for naming conventions
+# This allows for nested resources in flask
+class AdminCommentView(AdminLessonView):
+    decorators = [login_required, requires_role('admin')]
+
+    def show(self, id, lid, tid):
+        return render_template('admin/topics/lessons/comments/show.html', comment=Comment.query.get(id),lid=lid,tid=tid,
+                                back_url=redirect_back('AdminTopicView:index'))
+
 class AdminUserView(FlaskView):
     decorators = [login_required, requires_role('admin')]
 
     # Route for all users
     def index(self):
+        # I did this like this becuase I didn't want flask-classy to define another route
         page = request.args.get('page', 1, type=int)
         users = User.query.paginate(page, 10, False)
         next_url = url_for('AdminUserView:index', page=users.next_num) \
@@ -333,8 +319,47 @@ class LessonView(TopicView):
 
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
-                                tid=tid, back_url=redirect_back('TopicView:index'))
+                                tid=tid, lid=id, form=CommentForm(), msg='created',
+                                back_url=redirect_back('TopicView:index'))
 
+# Inheriting from Lesson is just for naming conventions
+# This allows for nested resources in flask
+class CommentView(LessonView):
+
+    def post(self, msg, id, lid, tid):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            comment = Comment.query.get(msg)
+            db.session.delete(comment)
+            db.session.commit()
+            flash(u'You have successfully deleted your comment!!', 'success')
+            return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                    lid=lid, tid=tid, form=CommentForm(),
+                                    back_url=redirect_back('TopicView:index'))
+        form = CommentForm()
+        if form.validate_on_submit():
+            if id != 'new':
+                form.iden = int(id)
+            # if a new entry create else update
+            form.save(True) if msg == 'created' else form.save(False)
+            flash(u'You have successfully %s your comment!!' % (msg), 'success')
+            return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
+                                    lid=lid, tid=tid, form=CommentForm(),
+                                    back_url=redirect_back('TopicView:index'))
+
+# Inheriting from TopicView is just for naming conventions
+# This allows for triple nested resources in flask
+class ReplyView(TopicView):
+    decorators = [login_required]
+
+    def new(self):
+        return 0
+
+    def post(self):
+        return 0
+
+    def edit(self):
+        return 0
 
 class UserView(FlaskView):
     decorators = [login_required]

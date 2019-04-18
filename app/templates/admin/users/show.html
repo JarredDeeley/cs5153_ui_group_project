@@ -4,7 +4,7 @@
   <h1 class="center">User {{ user.username }}</h1>
   <p>Email: {{ user.email }}</p>
   <p>
-    <a href="{{ url_for('AdminUserView:edit',id=user.id) }}" class="button btn btn-warning btn-lg">Edit</a>
-    <a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a>
+    <a href="{{ url_for('AdminUserView:edit',id=user.id) }}" class="btn btn-warning btn-lg">Edit</a>
+    <a href="{{ back_url }}" class="btn btn-danger btn-lg">Back</a>
   </p>
 {% endblock %}

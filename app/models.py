@@ -2,12 +2,21 @@ from app import db, login
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 
-# For many to many relation ship with roles
+# For many to many relationship with users,roles
 # A single user can have many roles
 # A single Role can have many users
 user_roles_association = db.Table('user_role',
     db.Column('user_id',db.Integer, db.ForeignKey('user.id'), primary_key=True),
     db.Column('role_id',db.Integer, db.ForeignKey('role.id'), primary_key=True),
+    db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+)
+
+# For many to many relationship with comments,replies
+# A single comment can have many replies
+# A single reply can have many comments
+comment_replies_association = db.Table('comment_reply',
+    db.Column('comment_id',db.Integer, db.ForeignKey('comment.id'), primary_key=True),
+    db.Column('reply_id',db.Integer, db.ForeignKey('reply.id'), primary_key=True),
     db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
 )
 
@@ -20,6 +29,7 @@ class User(UserMixin, db.Model):
     created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
 
     roles = db.relationship('Role', secondary=user_roles_association)
+    comments = db.relationship('Comment', backref='comment', lazy='dynamic')
 
     # What gets printed in flask shell or yarn shell when
     # querying Users
@@ -57,6 +67,7 @@ class Topic(db.Model):
     description = db.Column(db.String(64), index=True, unique=True)
     text = db.Column(db.Text, index=True, unique=True)
     created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
     # A Topic can have many lessons
     lessons = db.relationship('Lesson', backref='lesson', lazy='dynamic')
 
@@ -72,11 +83,45 @@ class Lesson(db.Model):
     description = db.Column(db.String(64), index=True, unique=True)
     text = db.Column(db.Text, index=True, unique=True)
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    # Lesson can have many comments
+    comments = db.relationship('Comment', lazy='dynamic')
 
     # What gets printed in flask shell or yarn shell when
     # querying Lessons
     def __repr__(self):
         return '<Lesson {}>'.format(self.name, self.description, self.created_at)
+
+# Comment model and related db columns
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
+    text = db.Column(db.Text, index=True, unique=True)
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    replies = db.relationship('Reply', secondary=comment_replies_association)
+
+    # What gets printed in flask shell or yarn shell when
+    # querying Lessons
+    def __repr__(self):
+        return '<Comment {}>'.format(self.id, self.lesson_id, self.created_at)
+
+# Reply model and related db columns
+class Reply(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    text = db.Column(db.Text, index=True, unique=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    comments = db.relationship('Comment', secondary=comment_replies_association)
+
+    # What gets printed in flask shell or yarn shell when
+    # querying Lessons
+    def __repr__(self):
+        return '<Reply {}>'.format(self.id, self.created_at)
+
 
 @login.user_loader
 def load_user(id):
