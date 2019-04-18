@@ -37,7 +37,7 @@ routes.UserView.register(app,route_base='/account')
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': models.User, 'Role': models.Role,
-            'Topic': models.Topic, 'Lesson': models.Lesson }
+            'Topic': models.Topic, 'Lesson': models.Lesson, 'Comment': models.Comment }
 
 # For database population/seeding
 @app.cli.command()

@@ -116,6 +116,7 @@ class UserForm(FlaskForm):
 
 # Register Form in templates/register.html
 class RegistrationForm(FlaskForm):
+    remember_me = BooleanField('Remember Me')
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
     password = PasswordField('Password', validators=[DataRequired()])
