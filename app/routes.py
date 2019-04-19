@@ -105,7 +105,7 @@ def logout():
 #FAQs
 @app.route('/faq')
 def faq():
-    return render_template('faq.html', title='FAQs', form=LoginForm())
+    return render_template('faq.html', title='FAQs')
 
 
 ######################################
