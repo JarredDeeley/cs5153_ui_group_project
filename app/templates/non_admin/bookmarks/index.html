@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block content %}
+  <h1 class="center">Your Bookmarks</h1>
+  <h3 class="center">Topics</h3>
+  <table class="table table-hover">
+    <tr>
+      <th>Topic</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for bookmark in bookmarks %}
+      <tr>
+        {% if bookmark.user_id == current_user.id %}
+          <td>{{ bookmark.topic.name }}</td>
+          <td><a href="{{ url_for('TopicView:show',id=bookmark.topic.id) }}" class="btn btn-success btn-md btn-block">show</a></td>
+          <td>
+            <form action="{{ url_for('BookmarkView:post',msg=bookmark.id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="submit" value="remove" class="btn btn-danger btn-md btn-block">
+            </form>
+          </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+  <h3 class="center">Lessons</h3>
+  <table class="table table-hover">
+    <tr>
+      <th>Topic</th>
+      <th></th>
+      <th>Lesson</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for bookmark in bookmarks %}
+      <tr>
+        {% if bookmark.user_id == current_user.id and bookmark.lesson.is_null %}
+          <td>{{ bookmark.topic.name }}</td>
+          <td><a href="{{ url_for('TopicView:show',id=bookmark.topic.id) }}" class="btn btn-success btn-md btn-block">show topic</a></td>
+          <td>{{ bookmark.lesson.name }}</td>
+          <td><a href="{{ url_for('LessonView:show',id=bookmark.lesson.id,tid=bookmark.topic.id) }}" class="btn btn-warning btn-md btn-block">show lesson</a></td>
+          <td>
+            <form action="{{ url_for('BookmarkView:post',msg=bookmark.id) }}" method="post">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="submit" value="remove" class="btn btn-danger btn-md btn-block">
+            </form>
+          </td>
+        {% endif %}
+      </tr>
+    {% endfor %}
+  </table>
+{% endblock %}

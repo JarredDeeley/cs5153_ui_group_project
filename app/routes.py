@@ -107,6 +107,7 @@ def logout():
 def faq():
     return render_template('faq.html', title='FAQs')
 
+
 ######################################
 ######################################
 ##                                  ##
@@ -298,11 +299,11 @@ class TopicView(FlaskView):
     # Route for all topics
     def index(self):
         return render_template('non_admin/topics/index.html', title='Topics',
-                                topics=Topic.query.all())
+                                topics=Topic.query.all(), bform=BookmarkForm())
 
     def show(self, id):
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                back_url=redirect_back('TopicView:index'))
+                                bform=BookmarkForm(), back_url=redirect_back('TopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for nested resources in flask
@@ -310,7 +311,7 @@ class LessonView(TopicView):
 
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
-                                tid=tid, lid=id, form=CommentForm(), msg='created',
+                                tid=tid, lid=id, form=CommentForm(), bform=BookmarkForm(), msg='created',
                                 back_url=redirect_back('TopicView:index'))
 
 # Inheriting from Lesson is just for naming conventions
@@ -357,3 +358,35 @@ class UserView(FlaskView):
 
     def settings(self):
         return render_template('non_admin/users/settings.html', title='Settings')
+
+class BookmarkView(FlaskView):
+    decorators = [login_required]
+
+    def index(self):
+        return render_template('non_admin/bookmarks/index.html',
+                                bookmarks=Bookmark.query.all(),
+                                title='Bookmark')
+
+    def post(self, msg):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            bookmark = Bookmark.query.get(msg)
+            db.session.delete(bookmark)
+            db.session.commit()
+            flash(u'You have successfully deleted your bookmark!!', 'success')
+            return render_template('non_admin/bookmarks/index.html',
+                                    bookmarks=Bookmark.query.all(),
+                                    back_url=redirect_back('Bookmark:index'))
+
+        form = BookmarkForm()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            if (form.save()):
+                flash(u'You have successfully saved your bookmark!!', 'success')
+                return render_template('non_admin/bookmarks/index.html',
+                                        bookmarks=Bookmark.query.all(),
+                                        back_url=redirect_back('Bookmark:index'))
+            flash(u'You might have already bookmarked this!!!', 'danger')
+            return render_template('non_admin/bookmarks/index.html',
+                                    bookmarks=Bookmark.query.all(),
+                                    back_url=redirect_back('Bookmark:index'))

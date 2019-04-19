@@ -29,7 +29,8 @@ class User(UserMixin, db.Model):
     created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
 
     roles = db.relationship('Role', secondary=user_roles_association)
-    comments = db.relationship('Comment', backref='comment', lazy='dynamic')
+    comments = db.relationship('Comment', backref='user', lazy='dynamic')
+    bookmark = db.relationship('Bookmark', uselist=False, backref='user')
 
     # What gets printed in flask shell or yarn shell when
     # querying Users
@@ -70,6 +71,9 @@ class Topic(db.Model):
 
     # A Topic can have many lessons
     lessons = db.relationship('Lesson', backref='lesson', lazy='dynamic')
+    lesson = db.relationship('Lesson', uselist=False, backref='topic')
+
+    bookmark = db.relationship('Bookmark', uselist=False, backref='topic')
 
     # What gets printed in flask shell or yarn shell when
     # querying topics
@@ -85,13 +89,18 @@ class Lesson(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
     created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
 
-    # Lesson can have many comments
+    # A single lesson can have many comments
     comments = db.relationship('Comment', lazy='dynamic')
+
+    bookmark = db.relationship('Bookmark', uselist=False, backref='lesson')
 
     # What gets printed in flask shell or yarn shell when
     # querying Lessons
     def __repr__(self):
         return '<Lesson {}>'.format(self.name, self.description, self.created_at)
+
+    def is_null(self):
+        return self is None
 
 # Comment model and related db columns
 class Comment(db.Model):
@@ -122,6 +131,20 @@ class Reply(db.Model):
     def __repr__(self):
         return '<Reply {}>'.format(self.id, self.created_at)
 
+
+# Bookmark model and related db columns
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    # What gets printed in flask shell or yarn shell when
+    # querying Lessons
+    def __repr__(self):
+        return '<Bookmark {}>'.format(self.id, self.lesson_id, self.user_id, self.topic_id, self.created_at)
 
 @login.user_loader
 def load_user(id):

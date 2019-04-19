@@ -7,12 +7,21 @@
       <th>Name</th>
       <th>Description</th>
       <th></th>
+      <th></th>
     </tr>
     {% for topic in topics %}
     <tr>
       <td>{{ topic.name }}</td>
       <td>{{ topic.description }}</td>
       <td><a href="{{ url_for('TopicView:show',id=topic.id) }}" class="btn btn-primary btn-md btn-block">show</a></td>
+      <td>
+        <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
+          {{ bform.csrf_token }}
+          {{ bform.tidf(value=topic.id) }}
+          {{ bform.uidf(value=current_user.id) }}
+          <input id="submit" name="submit" type="submit" value="bookmark" class="btn btn-info btn-md btn-block">
+        </form>
+      </td>
     </tr>
     {% endfor %}
   </table>
