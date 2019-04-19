@@ -1,30 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="jumbotron">
-	<h2 class="display-4">{{ topic.name }}</h2>
-	<div class="row">
-		{% for lesson in topic.lessons %}
-		<div class="col-md-12">
-			<div class="card mb-4 shadow-sm">
-				<h4 class="display-5 center" style="padding-top:5%">{{ lesson.name }}</h4>
-				<div class="card-body">
-					<p class="card-text">{{ lesson.description }}</p>
-					<div class="d-flex justify-content-between align-items-center">
-						<div class="btn-group">
-							<a href="{{ url_for('LessonView:show',id=lesson.id, tid=topic.id) }}" class="button btn btn-primary btn-md btn-block">show</a>
-							<!--button type="button" class="btn btn-sm btn-outline-secondary">Edit</button-->
-						</div>
-						<!--small class="text-muted">9 mins</small-->
-					</div>
-				</div>
-			</div>
-		</div>
-		{% endfor %}
-	</div>
-
-	<br /><br />
-	<p><a href="{{ back_url }}" class="button btn btn-danger btn-lg">Back</a></p>
-
-</div>
+  <h1 class="center">Topic</h1>
+  <p>Name: {{ topic.name }}</p>
+  <p>Description: {{ topic.description }}</p>
+  <p>{{ topic.text|safe }}</p>
+  <a href="{{ back_url }}" class="btn btn-danger btn-lg">Back</a>
+  <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
+    {{ bform.csrf_token }}
+    {{ bform.tidf(value=topic.id) }}
+    {{ bform.uidf(value=current_user.id) }}
+    <input id="submit" name="submit" type="submit" value="bookmark topic" class="btn btn-info btn-lg">
+  </form>
+  <h3 class="center">Topic Lessons All</h3>
+  <table class="table table-hover">
+    <tr>
+      <th>Name</th>
+      <th>Description</th>
+      <th></th>
+      <th></th>
+    </tr>
+    {% for lesson in topic.lessons %}
+    <tr>
+      <td>{{ lesson.name }}</td>
+      <td>{{ lesson.description }}</td>
+      <td><a href="{{ url_for('LessonView:show',id=lesson.id,tid=topic.id) }}" class="btn btn-primary btn-md btn-block">show</a></td>
+      <td>
+        <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
+          {{ bform.csrf_token }}
+          {{ bform.tidf(value=topic.id) }}
+          {{ bform.lidf(value=lesson.id) }}
+          {{ bform.uidf(value=current_user.id) }}
+          <input id="submit" name="submit" type="submit" value="bookmark" class="btn btn-info btn-md btn-block">
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </table>
 {% endblock %}

@@ -79,14 +79,20 @@ class CommentForm(FlaskForm):
         db.session.commit()
 
 class BookmarkForm(FlaskForm):
-    uid = HiddenField('User ID', validators=[DataRequired()])
-    tid = HiddenField('Topic ID', validators=[DataRequired()])
-    lid = HiddenField('Lesson ID')
+    uidf = HiddenField('User ID', validators=[DataRequired()])
+    tidf = HiddenField('Topic ID', validators=[DataRequired()])
+    lidf = HiddenField('Lesson ID')
 
     def save(self):
-        bookmark = Bookmark(user_id=self.uid.data,topic_id=self.tid.data,lesson_id=self.lid.data)
-        db.session.add(bookmark)
-        db.session.commit()
+        ret = False
+        if db.session.query(Bookmark.id).filter_by(
+                            user_id=self.uidf.data,topic_id=self.tidf.data,
+                            lesson_id=self.lidf.data).scalar() is None:
+            bookmark = Bookmark(user_id=self.uidf.data,topic_id=self.tidf.data,lesson_id=self.lidf.data)
+            db.session.add(bookmark)
+            db.session.commit()
+            ret = True
+        return ret
 
 # Roles form in folder templates/admin/roles/new|edit.html
 class RoleForm(FlaskForm):

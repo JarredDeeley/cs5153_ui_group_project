@@ -1,3 +1,5 @@
+### No the best web application, but she gets the job done ###
+
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
@@ -32,12 +34,14 @@ routes.TopicView.register(app,route_base='/topics')
 routes.LessonView.register(app,route_base='/topics/<tid>/lessons')
 routes.CommentView.register(app,route_base='/topics/<tid>/lessons/<lid>/comments')
 routes.UserView.register(app,route_base='/account')
+routes.BookmarkView.register(app,route_base='/bookmarks')
 
 # For Flask Shell
 @app.shell_context_processor
 def make_shell_context():
     return {'db': db, 'User': models.User, 'Role': models.Role,
-            'Topic': models.Topic, 'Lesson': models.Lesson, 'Comment': models.Comment }
+            'Topic': models.Topic, 'Lesson': models.Lesson,
+            'Comment': models.Comment, 'Bookmark': models.Bookmark }
 
 # For database population/seeding
 @app.cli.command()

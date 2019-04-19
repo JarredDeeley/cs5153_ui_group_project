@@ -82,22 +82,6 @@ def index():
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
 
-@app.route('/login', methods=['GET','POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
-        if user is None or not user.check_password(form.password.data):
-            flash(u'Invalid username or password','danger')
-            return redirect(url_for('login'))
-        login_user(user, remember=form.remember_me.data)
-        next_page = request.args.get('next')
-        if not next_page or url_parse(next_page).netloc != '':
-            next_page = url_for('index')
-        flash(u'Successfully Signed in!!!', 'success')
-        return redirect(next_page)
-    return render_template('index.html', title='Home', form=form)
-
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -315,11 +299,11 @@ class TopicView(FlaskView):
     # Route for all topics
     def index(self):
         return render_template('non_admin/topics/index.html', title='Topics',
-                                topics=Topic.query.all())
+                                topics=Topic.query.all(), bform=BookmarkForm())
 
     def show(self, id):
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                back_url=redirect_back('TopicView:index'))
+                                bform=BookmarkForm(), back_url=redirect_back('TopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for nested resources in flask
@@ -327,7 +311,7 @@ class LessonView(TopicView):
 
     def show(self, id, tid):
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
-                                tid=tid, lid=id, form=CommentForm(), msg='created',
+                                tid=tid, lid=id, form=CommentForm(), bform=BookmarkForm(), msg='created',
                                 back_url=redirect_back('TopicView:index'))
 
 # Inheriting from Lesson is just for naming conventions
@@ -379,7 +363,9 @@ class BookmarkView(FlaskView):
     decorators = [login_required]
 
     def index(self):
-        return render_template('non_admin/bookmarks/index.html', title='Bookmark')
+        return render_template('non_admin/bookmarks/index.html',
+                                bookmarks=Bookmark.query.all(),
+                                title='Bookmark')
 
     def post(self, msg):
         # have to cheese this to make work
@@ -388,11 +374,19 @@ class BookmarkView(FlaskView):
             db.session.delete(bookmark)
             db.session.commit()
             flash(u'You have successfully deleted your bookmark!!', 'success')
-            return render_template('non_admin/bookmarks/index.html', back_url=redirect_back('Bookmark:index'))
+            return render_template('non_admin/bookmarks/index.html',
+                                    bookmarks=Bookmark.query.all(),
+                                    back_url=redirect_back('Bookmark:index'))
 
-        form = Bookmark()
+        form = BookmarkForm()
         if form.validate_on_submit():
             # if a new entry create else update
-            form.save()
-            flash(u'You have successfully saved your bookmark!!', 'success')
-            return url_for(request.path)
+            if (form.save()):
+                flash(u'You have successfully saved your bookmark!!', 'success')
+                return render_template('non_admin/bookmarks/index.html',
+                                        bookmarks=Bookmark.query.all(),
+                                        back_url=redirect_back('Bookmark:index'))
+            flash(u'You might have already bookmarked this!!!', 'danger')
+            return render_template('non_admin/bookmarks/index.html',
+                                    bookmarks=Bookmark.query.all(),
+                                    back_url=redirect_back('Bookmark:index'))
