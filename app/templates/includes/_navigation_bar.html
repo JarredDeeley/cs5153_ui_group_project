@@ -1,16 +1,18 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTogglerDemo03" aria-controls="navbarTogglerDemo03" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-  <a href="{{ url_for('index') }}" class="navbar-brand">
-    {% if current_user.is_authenticated and current_user.has_role('admin') %}
-    <strong>Admin</strong>
-    {% else %}
-    <strong>Sanitized Code</strong>
-    {% endif %}
-  </a>
-  <div class="collapse navbar-collapse" id="navbarTogglerDemo03">
-    <ul class="navbar-nav ml-auto mt-2 mt-lg-0">
+<div class="navbar navbar-dark bg-dark shadow-sm">
+  <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+    <ul class="navbar-nav mr-auto">
+      <li class="nav-item active">
+        <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center">
+          {% if current_user.is_authenticated and current_user.has_role('admin') %}
+          <strong>Admin</strong>
+          {% else %}
+          <strong>Sanitized Code</strong>
+          {% endif %}
+        </a>
+      </li>
+      <li class="nav-item active">
+        <a class="nav-link" href="{{ url_for('faq') }}">FAQs<span class="sr-only">(current)</span></a>
+      </li>
       {% if current_user.is_authenticated and current_user.has_role('admin') %}
         <li class="nav-item active">
           <a class="nav-link" href="{{ url_for('AdminRoleView:index') }}">roles<span class="sr-only">(current)</span></a>
@@ -19,24 +21,16 @@
           <a class="nav-link" href="{{ url_for('AdminUserView:index') }}">users<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('AdminTopicView:index') }}">Admin Topics<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('AdminTopicView:index') }}">Topics<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('TopicView:index') }}">Topics<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('UserView:settings') }}">Settings<span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
           <a class="nav-link" href="{{ url_for('logout') }}">Logout<span class="sr-only">(current)</span></a>
         </li>
       {% else %}
         {% if current_user.is_authenticated %}
-          <li>
-            <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            </form>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('faq') }}">FAQs<span class="sr-only">(current)</span></a>
-          </li>
           <li class="nav-item active">
             <a class="nav-link" href="{{ url_for('TopicView:index') }}">Topics<span class="sr-only">(current)</span></a>
           </li>
@@ -50,13 +44,27 @@
             <a class="nav-link" href="{{ url_for('logout') }}">Logout<span class="sr-only">(current)</span></a>
           </li>
         {% else %}
-          <li>
-            <form class="form-inline my-2 my-lg-0">
-              <input class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
-            </form>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('TopicView:index') }}">Topics<span class="sr-only">(current)</span></a>
+          <li class="nav-item dropdown active">
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login</a>
+            <div class="dropdown-menu" aria-labelledby="dropdown07">
+              <div class="col-md-4">
+                <h4>Sign In</h4>
+                <form action="{{ url_for('index') }}" method="post" novalidate>
+                  {{ form.csrf_token() }}
+                  {{ form.hidden_tag() }}
+                  <p>
+                    {{ form.username.label }}<br>
+                    {{ form.username(size=32) }}<br>
+                  </p>
+                  <p>
+                    {{ form.password.label }}<br>
+                    {{ form.password(size=32) }}<br>
+                  </p>
+                  <p style="font-size:10pt">{{ form.remember_me() }} {{ form.remember_me.label }}</p>
+                  <input id="submit" name="submit" type="submit" value="Sign In" class="button btn btn-success btn-lg">
+                </form>
+              </div>
+            </div>
           </li>
           <li class="nav-item active">
             <a class="nav-link" href="{{ url_for('register') }}">Sign up<span class="sr-only">(current)</span></a>
@@ -64,5 +72,5 @@
         {% endif %}
       {% endif %}
     </ul>
-  </div>
-</nav>
+  </nav>
+</div>
