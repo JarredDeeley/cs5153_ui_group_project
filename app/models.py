@@ -30,6 +30,7 @@ class User(UserMixin, db.Model):
 
     roles = db.relationship('Role', secondary=user_roles_association)
     comments = db.relationship('Comment', backref='comment', lazy='dynamic')
+    bookmarks = db.relationship('Bookmark', lazy='dynamic')
 
     # What gets printed in flask shell or yarn shell when
     # querying Users
@@ -71,6 +72,9 @@ class Topic(db.Model):
     # A Topic can have many lessons
     lessons = db.relationship('Lesson', backref='lesson', lazy='dynamic')
 
+    # A Topic can have many Bookmarks
+    bookmarks = db.relationship('Bookmark', lazy='dynamic')
+
     # What gets printed in flask shell or yarn shell when
     # querying topics
     def __repr__(self):
@@ -85,8 +89,11 @@ class Lesson(db.Model):
     topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
     created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
 
-    # Lesson can have many comments
+    # A single lesson can have many comments
     comments = db.relationship('Comment', lazy='dynamic')
+
+    # A single lesson can have many bookmarks
+    bookmarks = db.relationship('Bookmark', lazy='dynamic')
 
     # What gets printed in flask shell or yarn shell when
     # querying Lessons
@@ -122,6 +129,20 @@ class Reply(db.Model):
     def __repr__(self):
         return '<Reply {}>'.format(self.id, self.created_at)
 
+
+# Bookmark model and related db columns
+class Bookmark(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
+    topic_id = db.Column(db.Integer, db.ForeignKey('topic.id'))
+
+    created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
+
+    # What gets printed in flask shell or yarn shell when
+    # querying Lessons
+    def __repr__(self):
+        return '<Bookmark {}>'.format(self.id, self.lesson_id, self.user_id, self.topic_id, self.created_at)
 
 @login.user_loader
 def load_user(id):

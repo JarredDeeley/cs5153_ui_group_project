@@ -374,3 +374,25 @@ class UserView(FlaskView):
 
     def settings(self):
         return render_template('non_admin/users/settings.html', title='Settings')
+
+class BookmarkView(FlaskView):
+    decorators = [login_required]
+
+    def index(self):
+        return render_template('non_admin/bookmarks/index.html', title='Bookmark')
+
+    def post(self, msg):
+        # have to cheese this to make work
+        if (msg.isdigit()): # this if for delete
+            bookmark = Bookmark.query.get(msg)
+            db.session.delete(bookmark)
+            db.session.commit()
+            flash(u'You have successfully deleted your bookmark!!', 'success')
+            return render_template('non_admin/bookmarks/index.html', back_url=redirect_back('Bookmark:index'))
+
+        form = Bookmark()
+        if form.validate_on_submit():
+            # if a new entry create else update
+            form.save()
+            flash(u'You have successfully saved your bookmark!!', 'success')
+            return url_for(request.path)
