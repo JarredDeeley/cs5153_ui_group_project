@@ -5,6 +5,9 @@ from flask_ckeditor import CKEditorField
 from app.models import *
 from app import db
 
+class SearchForm(FlaskForm):
+    search = StringField('search', validators=[DataRequired()])
+
 # Login form in templates/login.html
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])

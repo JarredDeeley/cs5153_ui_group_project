@@ -6,7 +6,8 @@ class Config(object):
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'development.sqlite3')
     SQLALCHEMY_TRACK_MODIFICATIONS = True
-    WHOOSH_BASE = os.path.join(basedir, 'search.db') #os.path.join(basedir, 'development.sqlite3')
+    WHOOSH_BASE = os.path.join(basedir, 'search.db')
+    MAX_SEARCH_RESULTS = 50
 
     # For recaptcha verification api keys
     RECAPTCHA_USE_SSL = False

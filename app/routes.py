@@ -36,6 +36,23 @@ def redirect_back(default):
 @app.before_request
 def load_user():
     g.user = current_user
+    if g.user.is_authenticated:
+        g.search_form = SearchForm()
+
+
+# For searching
+@app.route('/search_results/<query>')
+@login_required
+def search_results(query):
+    results = Lesson.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
+    return render_template('search_results.html', query=query, results=results.sort())
+
+@app.route('/search', methods=['POST'])
+@login_required
+def search():
+    if not g.search_form.validate_on_submit():
+        return redirect(url_for('index'))
+    return redirect(url_for('search_results', query=g.search_form.search.data))
 
 # Route for uploading to files to the uploads folder
 # in project root uploads
@@ -394,25 +411,34 @@ class BookmarkView(FlaskView):
                                 back_url=redirect_back('BookmarkView:index'))
 
     def post(self, msg):
+        page = request.args.get('page', 1, type=int)
+        bookmarks = Bookmark.query.paginate(page, 10, False)
+        next_url = url_for('BookmarkView:index', page=bookmarks.next_num) \
+            if bookmarks.has_next else None
+        prev_url = url_for('BookmarkView:index', page=bookmarks.prev_num) \
+            if bookmarks.has_prev else None
         # have to cheese this to make work
         if (msg.isdigit()): # this if for delete
             bookmark = Bookmark.query.get(msg)
             db.session.delete(bookmark)
             db.session.commit()
             flash(u'You have successfully deleted your bookmark!!', 'success')
-            return render_template('non_admin/bookmarks/index.html',
-                                    bookmarks=Bookmark.query.all(),
-                                    back_url=redirect_back('Bookmark:index'))
+            return render_template('non_admin/bookmarks/index.html', title='Bookmark',
+                                    next_url=next_url, prev_url=prev_url,
+                                    bookmarks=bookmarks.items,
+                                    back_url=redirect_back('BookmarkView:index'))
 
         form = BookmarkForm()
         if form.validate_on_submit():
             # if a new entry create else update
             if (form.save()):
                 flash(u'You have successfully saved your bookmark!!', 'success')
-                return render_template('non_admin/bookmarks/index.html',
-                                        bookmarks=Bookmark.query.all(),
-                                        back_url=redirect_back('Bookmark:index'))
+                return render_template('non_admin/bookmarks/index.html', title='Bookmark',
+                                        next_url=next_url, prev_url=prev_url,
+                                        bookmarks=bookmarks.items,
+                                        back_url=redirect_back('BookmarkView:index'))
             flash(u'You might have already bookmarked this!!!', 'danger')
-            return render_template('non_admin/bookmarks/index.html',
-                                    bookmarks=Bookmark.query.all(),
-                                    back_url=redirect_back('Bookmark:index'))
+            return render_template('non_admin/bookmarks/index.html', title='Bookmark',
+                                    next_url=next_url, prev_url=prev_url,
+                                    bookmarks=bookmarks.items,
+                                    back_url=redirect_back('BookmarkView:index'))
