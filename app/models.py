@@ -1,6 +1,7 @@
-from app import db, login
+from app import app, db, login
 from werkzeug.security import generate_password_hash, check_password_hash
-from flask_login import UserMixin
+from flask_login import UserMixin, AnonymousUserMixin
+import flask_whooshalchemy as wa
 
 # For many to many relationship with users,roles
 # A single user can have many roles
@@ -20,8 +21,17 @@ comment_replies_association = db.Table('comment_reply',
     db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
 )
 
+class Anonymous(AnonymousUserMixin):
+    def __init__(self):
+        self.username = 'Guest'
+
+    def has_role(self, role_sym):
+        return False
+
 # Users model and related db columns
 class User(UserMixin, db.Model):
+    __searchable__ = ['username','email']
+
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64), index=True, unique=True)
     email = db.Column(db.String(120), index=True, unique=True)
@@ -44,11 +54,13 @@ class User(UserMixin, db.Model):
         return check_password_hash(self.password_hash, password)
 
     # For checking if a user has said role
-    def has_role(self,role_sym):
+    def has_role(self, role_sym):
         return [True if role.name == role_sym else False for role in self.roles]
 
 # Roles model and related db columns
 class Role(db.Model):
+    __searchable__ = ['name','description']
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(1500), index=True, unique=True)
@@ -63,6 +75,8 @@ class Role(db.Model):
 
 # Topics model and related db columns
 class Topic(db.Model):
+    __searchable__ = ['name','description']
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(64), index=True, unique=True)
@@ -82,6 +96,8 @@ class Topic(db.Model):
 
 # Lessons model and related db columns
 class Lesson(db.Model):
+    __searchable__ = ['name','description']
+
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(64), index=True, unique=True)
     description = db.Column(db.String(64), index=True, unique=True)
@@ -102,8 +118,13 @@ class Lesson(db.Model):
     def is_null(self):
         return self is None
 
+    def is_int(self):
+        return type(self.id) == 'int'
+
 # Comment model and related db columns
 class Comment(db.Model):
+    __searchable__ = ['text']
+
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     lesson_id = db.Column(db.Integer, db.ForeignKey('lesson.id'))
@@ -149,3 +170,9 @@ class Bookmark(db.Model):
 @login.user_loader
 def load_user(id):
     return User.query.get(int(id))
+
+wa.whoosh_index(app, User)
+wa.whoosh_index(app, Role)
+wa.whoosh_index(app, Topic)
+wa.whoosh_index(app, Lesson)
+wa.whoosh_index(app, Comment)

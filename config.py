@@ -5,7 +5,8 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'you-will-never-guess-redicules-did-i-spell-that-shit-right'
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
         'sqlite:///' + os.path.join(basedir, 'development.sqlite3')
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    SQLALCHEMY_TRACK_MODIFICATIONS = True
+    WHOOSH_BASE = os.path.join(basedir, 'search.db') #os.path.join(basedir, 'development.sqlite3')
 
     # For recaptcha verification api keys
     RECAPTCHA_USE_SSL = False

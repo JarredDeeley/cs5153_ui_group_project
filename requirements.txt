@@ -11,6 +11,7 @@ Flask-Classy==0.6.10
 Flask-Login==0.4.1
 Flask-Migrate==2.3.1
 Flask-SQLAlchemy==2.3.2
+Flask-WhooshAlchemy==0.56
 Flask-WTF==0.14.2
 honcho==1.0.1
 inflection==0.3.1
@@ -38,5 +39,6 @@ SQLAlchemy==1.2.17
 text-unidecode==1.2
 tzlocal==1.5.1
 Werkzeug==0.14.1
+Whoosh==2.7.4
 wrapt==1.11.1
 WTForms==2.2.1

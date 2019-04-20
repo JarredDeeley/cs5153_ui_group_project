@@ -22,6 +22,8 @@ from app import routes, models, topic_lesson_content_seed
 from faker import Faker
 from werkzeug.security import generate_password_hash
 
+login.anonymous_user = models.Anonymous
+
 # Admin users routes registration
 routes.AdminView.register(app,route_base='/admin')
 routes.AdminUserView.register(app,route_base='/admin/users')
