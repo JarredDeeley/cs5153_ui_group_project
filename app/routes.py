@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
-from app import app, config, db
+from app import app, config, db, login
 from app.models import *
 from app.forms import *
 
@@ -22,6 +22,13 @@ def requires_role(role):
             return f(*args, **kwargs)
         return wrapped
     return wrapper
+
+# if user not logged in
+@login.unauthorized_handler
+def unauthorized():
+    flash(u'You must sign in before usage!!','danger')
+    # redirect to login page if user not logged in
+    return render_template('index.html', title='Home', form=LoginForm())
 
 # This is used via the vairable back_url
 # This allows users to go back to the page
