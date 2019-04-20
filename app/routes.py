@@ -26,7 +26,7 @@ def requires_role(role):
 # if user not logged in
 @login.unauthorized_handler
 def unauthorized():
-    flash(u'You must sign in before usage!!','danger')
+    flash(u'You must sign in before usage!!','warning')
     # redirect to login page if user not logged in
     return render_template('index.html', title='Home', form=LoginForm())
 
@@ -50,16 +50,25 @@ def load_user():
 # For searching
 @app.route('/search_results/<query>')
 @login_required
-def search_results(query):
-    results = Lesson.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
+def search_results(query, page):
+    if page == '/admin/users':
+        results = User.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
+    else if page == '/lesson':
+        results = Lesson.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
+
     return render_template('search_results.html', query=query, results=results.sort())
 
 @app.route('/search', methods=['POST'])
 @login_required
 def search():
+    req = request.referrer[22:]
+    if req == 'index' or req == '':
+        flash(u'The page you are currently on is not searchable...', 'danger')
+        return render_template('index.html', title='Home')
+
     if not g.search_form.validate_on_submit():
         return redirect(url_for('index'))
-    return redirect(url_for('search_results', query=g.search_form.search.data))
+    return redirect(url_for('search_results', query=g.search_form.search.data, page=req))
 
 # Route for uploading to files to the uploads folder
 # in project root uploads
@@ -418,12 +427,6 @@ class BookmarkView(FlaskView):
                                 back_url=redirect_back('BookmarkView:index'))
 
     def post(self, msg):
-        page = request.args.get('page', 1, type=int)
-        bookmarks = Bookmark.query.paginate(page, 10, False)
-        next_url = url_for('BookmarkView:index', page=bookmarks.next_num) \
-            if bookmarks.has_next else None
-        prev_url = url_for('BookmarkView:index', page=bookmarks.prev_num) \
-            if bookmarks.has_prev else None
         # have to cheese this to make work
         if (msg.isdigit()): # this if for delete
             bookmark = Bookmark.query.get(msg)
@@ -431,8 +434,7 @@ class BookmarkView(FlaskView):
             db.session.commit()
             flash(u'You have successfully deleted your bookmark!!', 'success')
             return render_template('non_admin/bookmarks/index.html', title='Bookmark',
-                                    next_url=next_url, prev_url=prev_url,
-                                    bookmarks=bookmarks.items,
+                                    bookmarks=Bookmark.query.all(),
                                     back_url=redirect_back('BookmarkView:index'))
 
         form = BookmarkForm()
@@ -441,11 +443,9 @@ class BookmarkView(FlaskView):
             if (form.save()):
                 flash(u'You have successfully saved your bookmark!!', 'success')
                 return render_template('non_admin/bookmarks/index.html', title='Bookmark',
-                                        next_url=next_url, prev_url=prev_url,
-                                        bookmarks=bookmarks.items,
+                                        bookmarks=Bookmark.query.all(),
                                         back_url=redirect_back('BookmarkView:index'))
             flash(u'You might have already bookmarked this!!!', 'danger')
             return render_template('non_admin/bookmarks/index.html', title='Bookmark',
-                                    next_url=next_url, prev_url=prev_url,
-                                    bookmarks=bookmarks.items,
+                                    bookmarks=Bookmark.query.all(),
                                     back_url=redirect_back('BookmarkView:index'))
