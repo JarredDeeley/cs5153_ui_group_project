@@ -61,7 +61,7 @@ def search_results(query, page, lastc):
 @app.route('/search', methods=['POST'])
 @login_required
 def search():
-    req = request.referrer[22:-2]
+    req = request.referrer[22:]
     lastc = request.referrer[-1]
 
     if req == 'index' or req == '':
