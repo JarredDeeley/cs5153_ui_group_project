@@ -3,7 +3,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
-from app import app, config, db
+from app import app, config, db, login
 from app.models import *
 from app.forms import *
 
@@ -23,6 +23,13 @@ def requires_role(role):
         return wrapped
     return wrapper
 
+# if user not logged in
+@login.unauthorized_handler
+def unauthorized():
+    flash(u'You must sign in before usage!!','warning')
+    # redirect to login page if user not logged in
+    return render_template('index.html', title='Home', form=LoginForm())
+
 # This is used via the vairable back_url
 # This allows users to go back to the page
 # They were on before
@@ -36,6 +43,34 @@ def redirect_back(default):
 @app.before_request
 def load_user():
     g.user = current_user
+    if g.user.is_authenticated:
+        g.search_form = SearchForm()
+
+# For searching
+@app.route('/search_results/<query>')
+@login_required
+def search_results(query, page, lastc):
+    if page == '/admin/users':
+        results = User.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
+    elif page == '/topics/show' and type(lastc) == 'int':
+        results = Lesson.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
+
+    return render_template('search_results.html', query=query, results=results)
+
+@app.route('/search', methods=['POST'])
+@login_required
+def search():
+    req = request.referrer[22:]
+    lastc = request.referrer[-1]
+
+    if req == 'index' or req == '':
+        flash(u'The page you are currently on is not searchable...', 'danger')
+        return render_template('index.html', title='Home')
+
+    if not g.search_form.validate_on_submit():
+        return redirect(url_for('index'))
+    return redirect(url_for('search_results', query=g.search_form.search.data,
+                            page=req, lastc=lastc))
 
 # Route for uploading to files to the uploads folder
 # in project root uploads
@@ -102,6 +137,23 @@ def logout():
     flash(u'Successfully Signed out', 'success')
     return render_template('index.html', title='Home', form=LoginForm())
 
+# This route is need to redirect users to login
+@app.route('/login', methods=['GET','POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(username=form.username.data).first()
+        if user is None or not user.check_password(form.password.data):
+            flash(u'Invalid username or password','danger')
+            return redirect(url_for('index'))
+        login_user(user, remember=form.remember_me.data)
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
+        flash(u'Successfully Signed in!!!', 'success')
+        return redirect(next_page)
+    return render_template('index.html', title='Home', form=form)
+
 #FAQs
 @app.route('/faq')
 def faq():
@@ -117,14 +169,14 @@ def faq():
 ######################################
 
 class AdminView(FlaskView):
-    decorators = [login_required, requires_role('admin')]
+    decorators = [requires_role('admin'), login_required]
 
     # Index for admin dashboard
     def index(self):
         return render_template('admin/dashboard.html', title='Admin Dashboard')
 
 class AdminRoleView(FlaskView):
-    decorators = [login_required, requires_role('admin')]
+    decorators = [requires_role('admin'), login_required]
 
     # Route for all roles
     def index(self):
@@ -158,7 +210,7 @@ class AdminRoleView(FlaskView):
                                 back_url=redirect_back('AdminRoleView:index'))
 
 class AdminTopicView(FlaskView):
-    decorators = [login_required, requires_role('admin')]
+    decorators = [requires_role('admin'), login_required]
 
     # Route for all topics
     def index(self):
@@ -205,7 +257,7 @@ class AdminTopicView(FlaskView):
 # Inheriting from AdminTopicView is just for naming conventions
 # This allows for nested resources in flask
 class AdminLessonView(AdminTopicView):
-    decorators = [login_required, requires_role('admin')]
+    decorators = [requires_role('admin'), login_required]
 
     def post(self, msg, tid):
         # have to cheese this to make work
@@ -244,7 +296,7 @@ class AdminLessonView(AdminTopicView):
                                 back_url=redirect_back('AdminTopicView:index'))
 
 class AdminUserView(FlaskView):
-    decorators = [login_required, requires_role('admin')]
+    decorators = [requires_role('admin'), login_required]
 
     # Route for all users
     def index(self):
@@ -363,9 +415,17 @@ class BookmarkView(FlaskView):
     decorators = [login_required]
 
     def index(self):
-        return render_template('non_admin/bookmarks/index.html',
-                                bookmarks=Bookmark.query.all(),
-                                title='Bookmark')
+        # I did this like this becuase I didn't want flask-classy to define another route
+        page = request.args.get('page', 1, type=int)
+        bookmarks = Bookmark.query.paginate(page, 10, False)
+        next_url = url_for('BookmarkView:index', page=bookmarks.next_num) \
+            if bookmarks.has_next else None
+        prev_url = url_for('BookmarkView:index', page=bookmarks.prev_num) \
+            if bookmarks.has_prev else None
+        return render_template('non_admin/bookmarks/index.html', title='Bookmark',
+                                next_url=next_url, prev_url=prev_url,
+                                bookmarks=bookmarks.items,
+                                back_url=redirect_back('BookmarkView:index'))
 
     def post(self, msg):
         # have to cheese this to make work
@@ -374,19 +434,19 @@ class BookmarkView(FlaskView):
             db.session.delete(bookmark)
             db.session.commit()
             flash(u'You have successfully deleted your bookmark!!', 'success')
-            return render_template('non_admin/bookmarks/index.html',
+            return render_template('non_admin/bookmarks/index.html', title='Bookmark',
                                     bookmarks=Bookmark.query.all(),
-                                    back_url=redirect_back('Bookmark:index'))
+                                    back_url=redirect_back('BookmarkView:index'))
 
         form = BookmarkForm()
         if form.validate_on_submit():
             # if a new entry create else update
             if (form.save()):
                 flash(u'You have successfully saved your bookmark!!', 'success')
-                return render_template('non_admin/bookmarks/index.html',
+                return render_template('non_admin/bookmarks/index.html', title='Bookmark',
                                         bookmarks=Bookmark.query.all(),
-                                        back_url=redirect_back('Bookmark:index'))
+                                        back_url=redirect_back('BookmarkView:index'))
             flash(u'You might have already bookmarked this!!!', 'danger')
-            return render_template('non_admin/bookmarks/index.html',
+            return render_template('non_admin/bookmarks/index.html', title='Bookmark',
                                     bookmarks=Bookmark.query.all(),
-                                    back_url=redirect_back('Bookmark:index'))
+                                    back_url=redirect_back('BookmarkView:index'))

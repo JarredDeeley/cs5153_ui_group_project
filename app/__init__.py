@@ -1,4 +1,4 @@
-### No the best web application, but she gets the job done ###
+### Not the best web application, but she gets the job done ###
 
 from flask import Flask
 from config import Config
@@ -21,6 +21,9 @@ login.login_view = 'login'
 from app import routes, models, topic_lesson_content_seed
 from faker import Faker
 from werkzeug.security import generate_password_hash
+
+# Just encase some anonymous user wants to do something
+login.anonymous_user = models.Anonymous
 
 # Admin users routes registration
 routes.AdminView.register(app,route_base='/admin')
