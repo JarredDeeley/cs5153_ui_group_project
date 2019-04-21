@@ -50,25 +50,28 @@ def load_user():
 # For searching
 @app.route('/search_results/<query>')
 @login_required
-def search_results(query, page):
+def search_results(query, page, lastc):
     if page == '/admin/users':
         results = User.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
-    else if page == '/lesson':
+    elif page == '/topics/show' and type(lastc) == 'int':
         results = Lesson.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
 
-    return render_template('search_results.html', query=query, results=results.sort())
+    return render_template('search_results.html', query=query, results=results)
 
 @app.route('/search', methods=['POST'])
 @login_required
 def search():
-    req = request.referrer[22:]
+    req = request.referrer[22:-2]
+    lastc = request.referrer[-1]
+
     if req == 'index' or req == '':
         flash(u'The page you are currently on is not searchable...', 'danger')
         return render_template('index.html', title='Home')
 
     if not g.search_form.validate_on_submit():
         return redirect(url_for('index'))
-    return redirect(url_for('search_results', query=g.search_form.search.data, page=req))
+    return redirect(url_for('search_results', query=g.search_form.search.data,
+                            page=req, lastc=lastc))
 
 # Route for uploading to files to the uploads folder
 # in project root uploads
