@@ -22,3 +22,7 @@ yarn-error.log
 # Ignore venv folder
 /venv
 /app/venv
+
+# Ignore search db & whoosh folder
+/search.db
+/whoosh

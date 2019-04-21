@@ -11,7 +11,7 @@
     </tr>
     {% for bookmark in bookmarks %}
       <tr>
-        {% if bookmark.user_id == current_user.id %}
+        {% if bookmark.user_id == current_user.id and not(bookmark.lesson.is_int)  %}
           <td>{{ bookmark.topic.name }}</td>
           <td><a href="{{ url_for('TopicView:show',id=bookmark.topic.id) }}" class="btn btn-success btn-md btn-block">show</a></td>
           <td>
@@ -36,7 +36,7 @@
     {% for bookmark in bookmarks %}
       <tr>
         {% if bookmark.user_id == current_user.id and bookmark.lesson.is_null %}
-          <td>{{ bookmark.topic.name }}</td>
+          <td onclick="content(this)">{{ bookmark.topic.name }}</td>
           <td><a href="{{ url_for('TopicView:show',id=bookmark.topic.id) }}" class="btn btn-success btn-md btn-block">show topic</a></td>
           <td>{{ bookmark.lesson.name }}</td>
           <td><a href="{{ url_for('LessonView:show',id=bookmark.lesson.id,tid=bookmark.topic.id) }}" class="btn btn-warning btn-md btn-block">show lesson</a></td>
@@ -50,4 +50,10 @@
       </tr>
     {% endfor %}
   </table>
+  {% if prev_url %}
+    <a href="{{ prev_url }}" class="btn btn-danger btn-md">previous</a>
+  {% endif %}
+  {% if next_url %}
+    <a href="{{ next_url }}" class="btn btn-info btn-md">next</a>
+  {% endif %}
 {% endblock %}

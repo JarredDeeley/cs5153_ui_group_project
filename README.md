@@ -13,6 +13,10 @@ virtualenv venv
 
 source venv/bin/activate
 pip install -r requirements.txt
+
+# Make sure you get an upgraded version of whoosh
+pip uninstall flask-whooshalchemy
+pip install git+git://github.com/miguelgrinberg/flask-whooshalchemy.git
 ```
 
 **Using virtual environment**
