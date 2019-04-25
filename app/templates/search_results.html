@@ -3,12 +3,18 @@
 
 {% block content %}
   <h1>Search results for "{{ query }}":</h1>
-  <h1 class="center">Lesson</h1>
+  {% if page == 'Topics' %}
+  {% for topic in results %}
+        {% include 'non_admin/topics/topics_show.html' %}
+  {% endfor %}
+  {% else %}
+  <h1 class="center">{{ page }}</h1>
   {% for lesson in results %}
   	<p>Name: {{ lesson.name }}</p>
   	<p>Description: {{ lesson.description }}</p>
   	<p>{{ lesson.text|safe }}</p>
   	<p>
   {% endfor %}
+  {% endif %}
     <a href="{{ url_for('index') }}" class="btn btn-danger btn-lg">Home</a>
 {% endblock %}

@@ -64,15 +64,22 @@ def searching():
     req = request.referrer[22:]
     #lastc = request.referrer[-1]
     results = []
-    if req == 'index' or req == '':
-        flash(u'The page you are currently on is not searchable...', 'danger')
-        return render_template('index.html', title='Home')
-
+    if req == 'index' or req == '' or req == 'faq':
+        flash(u'The search option is available for Topics and lessons page...', 'danger')
+        return render_template(req+'.html', title='Home')
+    elif req == 'account/settings/':
+        flash(u'The search option is available for Topics and lessons page...', 'danger')
+        return render_template('non_admin/users/settings.html', title='Home')
     if not g.search_form.validate_on_submit():
         return redirect(url_for('index'))
     qr=g.search_form.search.data
-    results = Lesson.query.whoosh_search(qr).all()
-    return render_template('search_results.html', results=results,query=qr,page=req)
+    if req=='topics/':
+    	results = Topic.query.whoosh_search(qr).all()
+    	return render_template('search_results.html', results=results,query=qr, page = 'Topics')
+    else:
+    	results = Lesson.query.whoosh_search(qr).all()
+    	return render_template('search_results.html', results=results,query=qr, page = 'Lessons')
+	
     #return redirect(url_for('search_results', query=g.search_form.search.data,page=req, lastc=lastc))
     	
 
