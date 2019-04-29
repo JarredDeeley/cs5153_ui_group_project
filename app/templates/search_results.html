@@ -3,7 +3,57 @@
 
 {% block content %}
   <h1>Search results for "{{ query }}":</h1>
-  {% for lesson in results %}
-      {% include 'non_admin/topics/show.html' %}
-  {% endfor %}
+  <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">Home</a>
+  {% if page == 'Topics' %}
+    {% for topic in results %}
+    <h1 class="center">Topic</h1>
+    <p>Name: {{ topic.name }}</p>
+    <p>Description: {{ topic.description }}</p>
+    <p>{{ topic.text|safe }}</p>
+    <p>
+      <a href="{{ back_url }}" class="btn btn-danger btn-lg">Back</a>
+      <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
+        {{ bform.csrf_token }}
+        {{ bform.tidf(value=topic.id) }}
+        {{ bform.uidf(value=current_user.id) }}
+        <input id="submit" name="submit" type="submit" value="bookmark topic" class="btn btn-info btn-lg">
+      </form>
+    </p>
+    <h3 class="center">Topic Lessons All</h3>
+    <table class="table table-hover">
+      <tr>
+        <th>Name</th>
+        <th>Description</th>
+        <th></th>
+        <th></th>
+      </tr>
+      {% for lesson in topic.lessons %}
+      <tr>
+        <td>{{ lesson.name }}</td>
+        <td>{{ lesson.description }}</td>
+        <td><a href="{{ url_for('LessonView:show',id=lesson.id,tid=topic.id) }}" class="btn btn-primary btn-md btn-block">show</a></td>
+        <td>
+          <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
+            {{ bform.csrf_token }}
+            {{ bform.tidf(value=topic.id) }}
+            {{ bform.lidf(value=lesson.id) }}
+            {{ bform.uidf(value=current_user.id) }}
+            <input id="submit" name="submit" type="submit" value="bookmark" class="btn btn-info btn-md btn-block">
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% endfor %}
+  {% else %}
+    <h1 class="center">{{ page }}</h1>
+    {% for lesson in results %}
+    	<p>Name: {{ lesson.name }}</p>
+    	<p>Description: {{ lesson.description }}</p>
+    	<p>{{ lesson.text|safe }}</p>
+      <a href="{{ url_for('LessonView:show',id=lesson.id,tid=lesson.topic.id) }}" class="btn btn-primary btn-md btn-block">show</a>
+    	<hr>
+    {% endfor %}
+    <a href="{{ back_url }}" class="btn btn-danger btn-lg">back</a>
+  {% endif %}
 {% endblock %}
