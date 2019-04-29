@@ -1,4 +1,5 @@
 from flask import render_template, flash, redirect, request, url_for, g, send_from_directory
+from urllib.parse import urlparse, urljoin
 from flask_login import current_user, login_user, login_required, logout_user
 from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
@@ -30,13 +31,28 @@ def unauthorized():
     # redirect to login page if user not logged in
     return render_template('index.html', title='Home', form=LoginForm())
 
+# http://flask.pocoo.org/snippets/62/
+def is_safe_url(target):
+    ref_url = urlparse(request.host_url)
+    test_url = urlparse(urljoin(request.host_url, target))
+    return test_url.scheme in ('http', 'https') and \
+           ref_url.netloc == test_url.netloc
+
+def get_redirect_target():
+    for target in request.values.get('next'), request.referrer:
+        if not target:
+            continue
+        if is_safe_url(target):
+            return target
+
 # This is used via the vairable back_url
 # This allows users to go back to the page
 # They were on before
-def redirect_back(default):
-    return request.args.get('next') or \
-           request.referrer or \
-           url_for(default)
+def redirect_back(endpoint, **values):
+    target = request.referrer
+    if not target or not is_safe_url(target):
+       target = url_for(endpoint, **values)
+    return redirect(target)
 
 # Simple solution to flask-classy issue but not secure
 # We aren't starting a company it doesn't matter
@@ -46,42 +62,29 @@ def load_user():
     if g.user.is_authenticated:
         g.search_form = SearchForm()
 
-
-# For searching
-#@app.route('/search_results/<query>')
-#@login_required
-#def search_results(query, page, lastc):
-#    if page == '/admin/users':
-#        results = User.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
-#    elif page == '/topics/show' and type(lastc) == 'int':
-#       results = Lesson.query.whoosh_search(query, config['MAX_SEARCH_RESULTS']).all()
-#
-#    return render_template('search_results.html', query=query, results=results)
-
 @app.route('/searching', methods=['POST'])
 @login_required
 def searching():
     req = request.referrer[22:]
-    #lastc = request.referrer[-1]
+    req_topics = request.referrer[22:29]
     results = []
-    if req == 'index' or req == '' or req == 'faq':
-        flash(u'The search option is available for Topics and lessons page...', 'danger')
-        return render_template(req+'.html', title='Home')
-    elif req == 'account/settings/':
-        flash(u'The search option is available for Topics and lessons page...', 'danger')
-        return render_template('non_admin/users/settings.html', title='Home')
+    if req_topics != 'topics/':
+        flash(u'The search option is only available for Topics and Lessons...', 'danger')
+        return redirect_back('index')
+
     if not g.search_form.validate_on_submit():
         return redirect(url_for('index'))
     qr=g.search_form.search.data
-    if req=='topics/':
+    if req == 'topics/':
     	results = Topic.query.whoosh_search(qr).all()
-    	return render_template('search_results.html', results=results,query=qr, page = 'Topics')
-    else:
-    	results = Lesson.query.whoosh_search(qr).all()
-    	return render_template('search_results.html', results=results,query=qr, page = 'Lessons')
-	
-    #return redirect(url_for('search_results', query=g.search_form.search.data,page=req, lastc=lastc))
-    	
+    	return render_template('search_results.html', results=results,query=qr, page='Topics',
+                                back_url=redirect_back('index'),bform=BookmarkForm())
+
+    results = Lesson.query.whoosh_search(qr).all()
+    return render_template('search_results.html', results=results,query=qr, page='Lessons',
+                            back_url=redirect_back('index'))
+
+    return redirect(url_for('index'))
 
 # Route for uploading to files to the uploads folder
 # in project root uploads
