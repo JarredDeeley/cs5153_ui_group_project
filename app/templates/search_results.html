@@ -2,8 +2,24 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>Search results for "{{ query }}":</h1>
-  {% for lesson in results %}
-      {% include 'non_admin/topics/show.html' %}
-  {% endfor %}
+  {% if results %}
+    <h1>Search results for "{{ query }}":</h1>
+    {% if page == 'Topics' %}
+      {% for topic in results %}
+        {% include 'non_admin/topics/topics_show.html' %}
+      {% endfor %}
+    {% else %}
+      <h1 class="center">{{ page }}</h1>
+      {% for lesson in results %}
+  	    <p>Name: {{ lesson.name }}</p>
+  	    <p>Description: {{ lesson.description }}</p>
+  	    <p>{{ lesson.text|safe }}</p>
+  	    <p>
+      {% endfor %}
+    {% endif %}
+  {% else %}
+    <h1>No search results found for "{{ query }}"</h1>
+  {% endif %}
+  <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">Home</a>
+  <a href="{{ back_url }}" class="btn btn-danger btn-lg">back</a>
 {% endblock %}

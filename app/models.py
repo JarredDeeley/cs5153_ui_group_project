@@ -176,3 +176,4 @@ wa.whoosh_index(app, Role)
 wa.whoosh_index(app, Topic)
 wa.whoosh_index(app, Lesson)
 wa.whoosh_index(app, Comment)
+
