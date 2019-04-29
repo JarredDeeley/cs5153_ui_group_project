@@ -26,3 +26,5 @@ yarn-error.log
 # Ignore search db & whoosh folder
 /search.db
 /whoosh
+
+user_log.txt

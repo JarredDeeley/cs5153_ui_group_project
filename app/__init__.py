@@ -7,6 +7,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_ckeditor import CKEditor
 from flask_wtf import CSRFProtect
+from logging import basicConfig, DEBUG
 
 app = Flask(__name__,static_folder="../public",template_folder="./templates")
 config = app.config.from_object(Config) # load config file
@@ -16,6 +17,10 @@ ckeditor = CKEditor(app) # For content management system (CMS)
 login = LoginManager(app) # For user login
 csrf = CSRFProtect(app)
 login.login_view = 'login'
+
+basicConfig(filename="user_log.txt",
+            filemode='a',
+            level=DEBUG)
 
 # Register add routes to make managing application easier
 from app import routes, models, topic_lesson_content_seed
