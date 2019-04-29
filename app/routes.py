@@ -51,7 +51,7 @@ def get_redirect_target():
 def redirect_back(endpoint, **values):
     target = request.referrer
     if not target or not is_safe_url(target):
-        target = url_for(endpoint, **values)
+       target = url_for(endpoint, **values)
     return redirect(target)
 
 # Simple solution to flask-classy issue but not secure
@@ -78,7 +78,7 @@ def searching():
     if req == 'topics/':
     	results = Topic.query.whoosh_search(qr).all()
     	return render_template('search_results.html', results=results,query=qr, page='Topics',
-                                back_url=redirect_back('index'))
+                                back_url=redirect_back('index'),bform=BookmarkForm())
 
     results = Lesson.query.whoosh_search(qr).all()
     return render_template('search_results.html', results=results,query=qr, page='Lessons',
