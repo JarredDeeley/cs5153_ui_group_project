@@ -3,6 +3,9 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
+
+from werkzeug.urls import url_parse
+
 from app import app, config, db, login
 from app.models import *
 from app.forms import *
@@ -27,6 +30,7 @@ def requires_role(role):
 @login.unauthorized_handler
 def unauthorized():
     flash(u'You must sign in before usage!!','warning')
+    app.logger.info('User warned that they need to login first')
     # redirect to login page if user not logged in
     return render_template('index.html', title='Home', form=LoginForm())
 
@@ -61,6 +65,8 @@ def load_user():
 @app.route('/searching', methods=['POST'])
 @login_required
 def searching():
+    app.logger.info('User performed a search')
+
     req = request.referrer[22:]
     #lastc = request.referrer[-1]
     results = []
@@ -114,29 +120,40 @@ def upload():
 @app.route('/')
 @app.route('/index', methods=['GET', 'POST'])
 def index():
+    app.logger.info('User on home page')
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
+            app.logger.info('User {} failed to login'.format(user.username))
             flash(u'Invalid username or password','danger')
             return redirect(url_for('index'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
+
         flash(u'Successfully Signed in!!!', 'success')
+        app.logger.info('User {} logged in successfully'.format(user.username))
+
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
 
 # Register route
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    app.logger.info('User on Registration page')
+
     if current_user.is_authenticated:
         return redirect(url_for('index'))
     form = RegistrationForm()
     if form.validate_on_submit():
         form.save()
+
         flash(u'Congratulations, you are now a registered user!', 'success')
+        app.logger.info('User created new account')
+
         return redirect(url_for('index'))
     return render_template('register.html', title='Register', form=form)
 
@@ -145,30 +162,39 @@ def register():
 @login_required
 def logout():
     logout_user()
+
     flash(u'Successfully Signed out', 'success')
+    app.logger.info('User has been signed out')
+
     return render_template('index.html', title='Home', form=LoginForm())
 
 
 # This route is need to redirect users to login
 @app.route('/login', methods=['GET','POST'])
 def login():
+    app.logger.login('User on login page')
+
     form = LoginForm()
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
             flash(u'Invalid username or password','danger')
+            app.logger.login('User failed login')
+
             return redirect(url_for('login'))
         login_user(user, remember=form.remember_me.data)
         next_page = request.args.get('next')
         if not next_page or url_parse(next_page).netloc != '':
             next_page = url_for('index')
         flash(u'Successfully Signed in!!!', 'success')
+        app.logger.info('User signed in')
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
 
 #FAQs
 @app.route('/faq')
 def faq():
+    app.logger.info('User on FAQ page')
     return render_template('faq.html', title='FAQs')
 
 
@@ -185,6 +211,7 @@ class AdminView(FlaskView):
 
     # Index for admin dashboard
     def index(self):
+        app.logger.info('On ADMIN dashboard')
         return render_template('admin/dashboard.html', title='Admin Dashboard')
 
 class AdminRoleView(FlaskView):
@@ -192,6 +219,7 @@ class AdminRoleView(FlaskView):
 
     # Route for all roles
     def index(self):
+        app.logger.info('On ADMIN role view')
         return render_template('admin/roles/index.html', title='Roles',
                                 roles=Role.query.all())
 
@@ -226,6 +254,7 @@ class AdminTopicView(FlaskView):
 
     # Route for all topics
     def index(self):
+        app.logger.info('on ADMIN topic view')
         return render_template('admin/topics/index.html', title='Topics',
                                 topics=Topic.query.all())
 
@@ -362,10 +391,12 @@ class AdminUserView(FlaskView):
 class TopicView(FlaskView):
     # Route for all topics
     def index(self):
+        app.logger.info('User on Topic page')
         return render_template('non_admin/topics/index.html', title='Topics',
                                 topics=Topic.query.all(), bform=BookmarkForm())
 
     def show(self, id):
+        app.logger.info('User viewing topic: {}'.format(Topic.query.get(id)))
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
                                 bform=BookmarkForm(), back_url=redirect_back('TopicView:index'))
 
@@ -374,6 +405,7 @@ class TopicView(FlaskView):
 class LessonView(TopicView):
 
     def show(self, id, tid):
+        app.logger.info('User on Lesson page: {}'.format(Lesson.query.get(id)))
         return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(id),
                                 tid=tid, lid=id, form=CommentForm(), bform=BookmarkForm(), msg='created',
                                 back_url=redirect_back('TopicView:index'))
@@ -383,12 +415,17 @@ class LessonView(TopicView):
 class CommentView(LessonView):
 
     def post(self, msg, id, lid, tid):
+        app.logger.info('User writing a comment')
+
         # have to cheese this to make work
         if (msg.isdigit()): # this if for delete
             comment = Comment.query.get(msg)
             db.session.delete(comment)
             db.session.commit()
+
             flash(u'You have successfully deleted your comment!!', 'success')
+            app.logger.info('User deleted their comment')
+
             return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
                                     lid=lid, tid=tid, form=CommentForm(),
                                     back_url=redirect_back('TopicView:index'))
@@ -399,6 +436,7 @@ class CommentView(LessonView):
             # if a new entry create else update
             form.save(True) if msg == 'created' else form.save(False)
             flash(u'You have successfully %s your comment!!' % (msg), 'success')
+            app.logger.info('User created or updated a comment')
             return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
                                     lid=lid, tid=tid, form=CommentForm(),
                                     back_url=redirect_back('TopicView:index'))
@@ -421,12 +459,15 @@ class UserView(FlaskView):
     decorators = [login_required]
 
     def settings(self):
+        app.logger.info('User on settings page')
         return render_template('non_admin/users/settings.html', title='Settings')
 
 class BookmarkView(FlaskView):
     decorators = [login_required]
 
     def index(self):
+        app.logger.info('User on bookmark page')
+
         # I did this like this becuase I didn't want flask-classy to define another route
         page = request.args.get('page', 1, type=int)
         bookmarks = Bookmark.query.paginate(page, 10, False)
@@ -445,7 +486,10 @@ class BookmarkView(FlaskView):
             bookmark = Bookmark.query.get(msg)
             db.session.delete(bookmark)
             db.session.commit()
+
             flash(u'You have successfully deleted your bookmark!!', 'success')
+            app.logger.info('User deleted a bookmark')
+
             return render_template('non_admin/bookmarks/index.html', title='Bookmark',
                                     bookmarks=Bookmark.query.all(),
                                     back_url=redirect_back('BookmarkView:index'))
@@ -455,10 +499,12 @@ class BookmarkView(FlaskView):
             # if a new entry create else update
             if (form.save()):
                 flash(u'You have successfully saved your bookmark!!', 'success')
+                app.logger.info('User created a new bookmark')
                 return render_template('non_admin/bookmarks/index.html', title='Bookmark',
                                         bookmarks=Bookmark.query.all(),
                                         back_url=redirect_back('BookmarkView:index'))
             flash(u'You might have already bookmarked this!!!', 'danger')
+            app.logger.info('User attempted to bookmark something they already bookmarked')
             return render_template('non_admin/bookmarks/index.html', title='Bookmark',
                                     bookmarks=Bookmark.query.all(),
                                     back_url=redirect_back('BookmarkView:index'))
