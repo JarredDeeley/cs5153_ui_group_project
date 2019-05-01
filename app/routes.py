@@ -129,7 +129,7 @@ def index():
     if form.validate_on_submit():
         user = User.query.filter_by(username=form.username.data).first()
         if user is None or not user.check_password(form.password.data):
-            app.logger.info('User {} failed to login'.format(user.username))
+            app.logger.info('User failed to login')
             flash(u'Invalid username or password','danger')
             return redirect(url_for('index'))
         login_user(user, remember=form.remember_me.data)
@@ -138,7 +138,7 @@ def index():
             next_page = url_for('index')
 
         flash(u'Successfully Signed in!!!', 'success')
-        app.logger.info('User {} logged in successfully'.format(user.username))
+        app.logger.info('User logged in successfully')
 
         return redirect(next_page)
     return render_template('index.html', title='Home', form=form)
