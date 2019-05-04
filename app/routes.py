@@ -4,9 +4,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from flask_ckeditor import upload_fail, upload_success
 from flask_classy import FlaskView # To make managing app routes easier
 from functools import wraps
-
 from werkzeug.urls import url_parse
-
 from app import app, config, db, login
 from app.models import *
 from app.forms import *
@@ -171,7 +169,6 @@ def logout():
 
     return render_template('index.html', title='Home', form=LoginForm())
 
-
 # This route is need to redirect users to login
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -198,7 +195,7 @@ def login():
 @app.route('/faq')
 def faq():
     app.logger.info('User on FAQ page')
-    return render_template('faq.html', title='FAQs')
+    return render_template('faq.html', title='FAQs', form=LoginForm())
 
 
 ######################################
