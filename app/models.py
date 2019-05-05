@@ -37,7 +37,8 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(120), index=True, unique=True)
     password_hash = db.Column(db.String(128))
     created_at = db.Column('created_at',db.TIMESTAMP, server_default=db.func.now())
-
+    name = db.Column(db.String(128),nullable=True)
+    contact = db.Column(db.Integer,nullable=True)
     roles = db.relationship('Role', secondary=user_roles_association)
     comments = db.relationship('Comment', backref='user', lazy='dynamic')
     bookmark = db.relationship('Bookmark', uselist=False, backref='user')
@@ -52,6 +53,9 @@ class User(UserMixin, db.Model):
 
     def check_password(self, password):
         return check_password_hash(self.password_hash, password)
+
+    def is_null(self):
+        return self is None
 
     # For checking if a user has said role
     def has_role(self, role_sym):

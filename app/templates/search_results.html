@@ -11,7 +11,6 @@
     <p>Description: {{ topic.description }}</p>
     <p>{{ topic.text|safe }}</p>
     <p>
-      <a href="{{ back_url }}" class="btn btn-danger btn-lg">Back</a>
       <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
         {{ bform.csrf_token }}
         {{ bform.tidf(value=topic.id) }}
@@ -54,6 +53,5 @@
       <a href="{{ url_for('LessonView:show',id=lesson.id,tid=lesson.topic.id) }}" class="btn btn-primary btn-md btn-block">show</a>
     	<hr>
     {% endfor %}
-    <a href="{{ back_url }}" class="btn btn-danger btn-lg">back</a>
   {% endif %}
 {% endblock %}

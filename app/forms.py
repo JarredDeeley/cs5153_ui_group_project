@@ -121,6 +121,8 @@ class RoleForm(FlaskForm):
 class UserForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     email = StringField('Email', validators=[DataRequired(), Email()])
+    name = StringField('Name', validators=[])
+    contact = StringField('Contact', validators=[])
     # This is only used for edit. So dont add valiations
     iden = HiddenField('User ID')
 
@@ -130,6 +132,8 @@ class UserForm(FlaskForm):
         user = User.query.get(self.iden.data)
         user.email = self.email.data
         user.username = self.username.data
+        user.name = self.name.data
+        user.contact = self.contact.data
         db.session.commit()
 
 # Register Form in templates/register.html

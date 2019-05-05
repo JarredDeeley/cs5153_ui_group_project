@@ -2,14 +2,17 @@
 
 {% block content %}
   <h1 class="center">Edit User</h1>
-  <form action="{{ url_for('AdminUserView:post') }}" method="post">
+  <form action="{{ url_for('UserView:post',id=id) }}" method="post">
     {{ form.csrf_token }}
     {{ form.iden(value=id) }}
     <p>
-      {{ render_field(form.username, class='form-control') }}<br>
+      {{ render_field(form.email, class='form-control') }}<br>
     </p>
     <p>
-      {{ render_field(form.email, class='form-control') }}<br>
+      {{ render_field(form.name, class='form-control') }}<br>
+    </p>
+    <p>
+      {{ render_field(form.contact, class='form-control') }}<br>
     </p>
     <p>
       <input id="submit" name="submit" type="submit" value="update user" class="btn btn-success btn-lg">

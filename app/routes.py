@@ -72,7 +72,7 @@ def searching():
     req = request.referrer[22:]
     req_topics = request.referrer[22:29]
     results = []
-    if req_topics != 'topics/':
+    if req ==  'faq' or req ==  'account/settings/':
         flash(u'The search option is only available for Topics and Lessons...', 'danger')
         return redirect_back('index')
 
@@ -151,11 +151,15 @@ def register():
     form = RegistrationForm()
     if form.validate_on_submit():
         form.save()
-
+        user = User.query.filter_by(username=form.username.data).first()
+        login_user(user)
         flash(u'Congratulations, you are now a registered user!', 'success')
         app.logger.info('User created new account')
+        next_page = request.args.get('next')
+        if not next_page or url_parse(next_page).netloc != '':
+            next_page = url_for('index')
 
-        return redirect(url_for('index'))
+        return redirect(next_page)
     return render_template('register.html', title='Register', form=form)
 
 # Logout
@@ -398,7 +402,7 @@ class TopicView(FlaskView):
     def show(self, id):
         app.logger.info('User viewing topic: {}'.format(Topic.query.get(id)))
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                bform=BookmarkForm(), back_url=redirect_back('TopicView:index'))
+                                bform=BookmarkForm(), back_url=redirect_back('TopicView:index'), form=form)
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for nested resources in flask
@@ -461,6 +465,26 @@ class UserView(FlaskView):
     def settings(self):
         app.logger.info('User on settings page')
         return render_template('non_admin/users/settings.html', title='Settings')
+
+    def post(self, id):
+        form = UserForm()
+        current_user = User.query.get(id)
+        form.username.data= current_user.username
+        if form.validate_on_submit():
+            form.save()
+            flash(u'You have successfully udated email', 'success')
+            return render_template('non_admin/users/settings.html', title='Settings')
+
+    def edit(self, id):
+        # This allows for form data to be filled
+        current_user = User.query.get(id)
+        form = UserForm()
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        form.name.data = current_user.name
+        form.contact.data = current_user.contact
+        return render_template('non_admin/users/edit.html', form=form, msg='updated',
+                                id=id, title='Settings')
 
 class BookmarkView(FlaskView):
     decorators = [login_required]

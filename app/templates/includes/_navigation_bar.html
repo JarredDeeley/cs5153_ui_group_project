@@ -4,9 +4,9 @@
       <li class="nav-item active">
         <a href="{{ url_for('index') }}" class="navbar-brand d-flex align-items-center">
           {% if current_user.is_authenticated and current_user.has_role('admin') %}
-          <strong>Admin</strong>
+          <font size="+2"><strong>Admin</strong></font>
           {% else %}
-          <strong>Sanitized Code</strong>
+          <font size="+2"><strong>Sanitized Code</strong></font>
           {% endif %}
         </a>
       </li>
@@ -19,19 +19,19 @@
           </form>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('AdminRoleView:index') }}">roles<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('AdminRoleView:index') }}"><font size="+2">roles</font><span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('AdminUserView:index') }}">users<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('AdminUserView:index') }}"><font size="+2">users</font><span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('AdminTopicView:index') }}">Topics<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('AdminTopicView:index') }}"><font size="+2">Topics</font><span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('UserView:settings') }}">Settings<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('UserView:settings') }}"><font size="+2">Settings</font><span class="sr-only">(current)</span></a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" href="{{ url_for('logout') }}">Logout<span class="sr-only">(current)</span></a>
+          <a class="nav-link" href="{{ url_for('logout') }}"><font size="+2">Logout</font><span class="sr-only">(current)</span></a>
         </li>
       {% else %}
         {% if current_user.is_authenticated %}
@@ -43,23 +43,23 @@
             </form>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('faq') }}">FAQs<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{ url_for('faq') }}"><font size="+2">FAQs</font><span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('TopicView:index') }}">Topics<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{ url_for('TopicView:index') }}"><font size="+2">Topics</font><span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item active display-5">
+            <a class="nav-link" href="{{ url_for('BookmarkView:index') }}"><font size="+2">Bookmarks</font><span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('BookmarkView:index') }}">Bookmarks<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{ url_for('UserView:settings') }}"><font size="+2">Settings</font><span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('UserView:settings') }}">Settings<span class="sr-only">(current)</span></a>
-          </li>
-          <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('logout') }}">Logout<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{ url_for('logout') }}"><font size="+2">Logout</font><span class="sr-only">(current)</span></a>
           </li>
         {% else %}
           <li class="nav-item dropdown active">
-            <a class="nav-link dropdown-toggle" href="#" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Login</a>
+            <a class="nav-link dropdown-toggle" href="#" id="dropdown07" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><font size="+2">Login</font></a>
             <div class="dropdown-menu" aria-labelledby="dropdown07">
               <div class="col-md-4">
                 <h4>Sign In</h4>
@@ -81,7 +81,7 @@
             </div>
           </li>
           <li class="nav-item active">
-            <a class="nav-link" href="{{ url_for('register') }}">Sign up<span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="{{ url_for('register') }}"><font size="+2">Sign up</font><span class="sr-only">(current)</span></a>
           </li>
         {% endif %}
       {% endif %}

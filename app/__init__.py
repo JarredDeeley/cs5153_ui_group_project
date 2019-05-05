@@ -68,19 +68,23 @@ def db_seed():
 
     # Create admin user
     if db.session.query(models.User.id).filter_by(username='admin').scalar() is None:
-        u = models.User(username='admin',
+        u = models.Use(username='admin',
                  email='admin@example.com',
-                 password_hash=generate_password_hash('admin'))
+                 password_hash=generate_password_hash('admin'),
+ 	         name='admin',
+		 contact=123)
         db.session.add(u)
         db.session.commit()
         u.roles.append(models.Role.query.get(1)) # add admin role
         db.session.commit()
 
-    # Create random 100 users
-    for _ in range(100):
+    # Create random 5 users
+    for _ in range(5):
         u = models.User(username=faker.name().lower().replace(" ", ""),
                  email=faker.email(),
-                 password_hash=generate_password_hash('Password1234'))
+                 password_hash=generate_password_hash('Password1234'),
+		 name=faker.name(),
+		 contact=0)
         db.session.add(u)
         db.session.commit()
 
