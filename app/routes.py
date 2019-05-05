@@ -402,7 +402,7 @@ class TopicView(FlaskView):
     def show(self, id):
         app.logger.info('User viewing topic: {}'.format(Topic.query.get(id)))
         return render_template('non_admin/topics/show.html', topic=Topic.query.get(id),
-                                bform=BookmarkForm(), back_url=redirect_back('TopicView:index'), form=form)
+                                bform=BookmarkForm(), back_url=redirect_back('TopicView:index'))
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for nested resources in flask
