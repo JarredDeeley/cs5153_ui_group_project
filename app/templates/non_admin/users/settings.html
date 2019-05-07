@@ -18,6 +18,20 @@
 			<td>
 				<h5>{{ current_user.email }}</h5>
 			</td>
+			<td>
+				<a href="{{ url_for('UserView:edit',id=current_user.id) }}"><span style='font-size:50px;'>&#9997;</span></a>
+			</td>
+		</tr>
+		<tr>
+			<td>
+				<h5>username:</h5>
+			</td>
+			<td>
+				<h5>{{ current_user.username }}</h5>
+			</td>
+			<td>
+				<a href="{{ url_for('UserView:edit',id=current_user.id) }}"><span style='font-size:50px;'>&#9997;</span></a>
+			</td>
 		</tr>
 	</table>
 </div>

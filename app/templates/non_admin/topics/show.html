@@ -6,7 +6,6 @@
   <p>Description: {{ topic.description }}</p>
   <p>{{ topic.text|safe }}</p>
   <p>
-    <a href="{{ back_url }}" class="btn btn-danger btn-lg">Back</a>
     <form action="{{ url_for('BookmarkView:post',msg='created') }}" method="post">
       {{ bform.csrf_token }}
       {{ bform.tidf(value=topic.id) }}

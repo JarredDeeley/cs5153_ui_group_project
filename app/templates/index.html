@@ -2,8 +2,8 @@
 
 {% block content %}
 <div class="jumbotron">
-	<h2 class="display-4">{{ current_user.username }} Welcome to Clean Code!</h2>
-	<p>The main goal of clean code is readability. It doesn’t matter how clever a code segment is if the code itself is unreadable. Code evolves and grows which requires changes throughout the code base. If the code base has poor readability then the time to make simple changes can be bogged down as the programmer tries to understand the code. If the code base isn’t refactored to be more readable then the mess of the codebase can grow over time. Eventually this can lead to longer delays and in the worst case scenario this can cause the death of a product. If the codebase is refactored to be cleaner, then there is less overhead when a programmer goes in to make a change. The time to understand a piece of code will be lower if its readability is high.</p>
+	<h2 class="display-5">{{ current_user.username }} Welcome to Clean Code!</h2>
+	<ul>&#8594;&emsp;The main goal of clean code is readability. </ul><ul>&#8594;&emsp;It doesn’t matter how clever a code segment is if the code itself is unreadable.</ul><ul>&#8594;&emsp;Code evolves and grows which requires changes throughout the code base. </ul><ul>&#8594;&emsp;If the code base isn’t refactored to be more readable then the mess of the codebase can grow over time.</ul><ul>&#8594;&emsp;Eventually this can lead to longer delays and in the worst case scenario this can cause the death of a product.</ul>
 </div>
 {% if not current_user.is_authenticated %}
 <div class="row">

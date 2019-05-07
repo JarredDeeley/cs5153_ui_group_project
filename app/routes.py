@@ -465,6 +465,25 @@ class UserView(FlaskView):
         app.logger.info('User on settings page')
         return render_template('non_admin/users/settings.html', title='Settings')
 
+    def post(self, id):
+        form = UserForm()
+        current_user = User.query.get(id)
+        form.username.data= current_user.username
+        form.email.data = current_user.email
+        if form.validate_on_submit():
+            form.save()
+            flash(u'You have successfully udated email', 'success')
+            return render_template('non_admin/users/settings.html', title='Settings')
+
+    def edit(self, id):
+        # This allows for form data to be filled
+        current_user = User.query.get(id)
+        form = UserForm()
+        form.username.data = current_user.username
+        form.email.data = current_user.email
+        return render_template('non_admin/users/edit.html', form=form, msg='updated',
+                                id=id, title='Settings')
+
 class BookmarkView(FlaskView):
     decorators = [login_required]
 
