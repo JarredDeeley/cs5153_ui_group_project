@@ -442,7 +442,7 @@ class CommentView(LessonView):
             app.logger.info('User created or updated a comment')
             return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
                                     lid=lid, tid=tid, form=CommentForm(),
-                                    back_url=redirect_back('TopicView:index'))
+                                    back_url=redirect_back('TopicView:index'),bform=BookmarkForm())
 
 # Inheriting from TopicView is just for naming conventions
 # This allows for triple nested resources in flask
