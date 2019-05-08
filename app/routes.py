@@ -431,7 +431,7 @@ class CommentView(LessonView):
 
             return render_template('non_admin/topics/lessons/show.html', lesson=Lesson.query.get(lid),
                                     lid=lid, tid=tid, form=CommentForm(),
-                                    back_url=redirect_back('TopicView:index'))
+                                    back_url=redirect_back('TopicView:index'),bform=BookmarkForm())
         form = CommentForm()
         if form.validate_on_submit():
             if id != 'new':
